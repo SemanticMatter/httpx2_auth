@@ -1007,7 +1007,7 @@ def test_something(browser_mock: BrowserMock):
 ```
 
 [1]: https://pypi.python.org/pypi/httpx "httpx module"
-[2]: https://www.python-httpx.org/advanced/#customizing-authentication "authentication parameter on httpx module"
+[2]: https://www.python-httpx.org/advanced/authentication/#custom-authentication-schemes "Custom authentication schemes"
 [3]: https://openid.net/specs/openid-connect-core-1_0.html#IDToken "OpenID ID Token specifications"
 [4]: https://docs.python.org/3/library/webbrowser.html#webbrowser.open "Python webbrowser module"
 [5]: https://github.com/python/cpython/blob/main/Lib/webbrowser.py "Python webbrowser module code"
