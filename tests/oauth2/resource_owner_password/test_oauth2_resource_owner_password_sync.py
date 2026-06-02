@@ -1,19 +1,16 @@
 import time
 
-from pytest_httpx import HTTPXMock
+import httpx2
 import pytest
-import httpx
+from pytest_httpx2 import HTTPXMock
 
-import httpx_auth
-from httpx_auth.testing import token_cache
-from httpx_auth._oauth2.tokens import to_expiry
+import httpx2_auth
+from httpx2_auth._oauth2.tokens import to_expiry
 
 
-def test_oauth2_password_credentials_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock
-):
-    client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_oauth2_password_credentials_flow_uses_provided_client(token_cache, httpx_mock: HTTPXMock):
+    client = httpx2.Client(headers={"x-test": "Test value"})
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -40,15 +37,15 @@ def test_oauth2_password_credentials_flow_uses_provided_client(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
     token_cache, httpx_mock: HTTPXMock
 ):
-    client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    client = httpx2.Client(headers={"x-test": "Test value"})
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -74,7 +71,7 @@ def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     time.sleep(2)
@@ -98,15 +95,15 @@ def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
             "Authorization": "Bearer 2YotnFZFEjr1zCsicMWpAA",
         },
     )
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_token_refresh(
     token_cache, httpx_mock: HTTPXMock
 ):
-    client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    client = httpx2.Client(headers={"x-test": "Test value"})
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -133,7 +130,7 @@ def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_token_ref
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     time.sleep(2)
@@ -159,14 +156,14 @@ def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_token_ref
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_password_credentials_flow_token_is_sent_in_authorization_header_by_default(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -189,14 +186,14 @@ def test_oauth2_password_credentials_flow_token_is_sent_in_authorization_header_
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_password_credentials_flow_does_not_authenticate_by_default(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -219,19 +216,14 @@ def test_oauth2_password_credentials_flow_does_not_authenticate_by_default(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
-    assert (
-        "Authorization"
-        not in httpx_mock.get_request(url="https://provide_access_token").headers
-    )
+    assert "Authorization" not in httpx_mock.get_request(url="https://provide_access_token").headers
 
 
-def test_oauth2_password_credentials_flow_authentication(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_oauth2_password_credentials_flow_authentication(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -258,14 +250,14 @@ def test_oauth2_password_credentials_flow_authentication(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_password_credentials_flow_token_is_expired_after_30_seconds_by_default(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     # Add a token that expires in 29 seconds, so should be considered as expired when issuing the request
@@ -295,14 +287,12 @@ def test_oauth2_password_credentials_flow_token_is_expired_after_30_seconds_by_d
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_password_credentials_flow_token_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_oauth2_password_credentials_flow_token_custom_expiry(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -322,14 +312,12 @@ def test_oauth2_password_credentials_flow_token_custom_expiry(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_password_credentials_flow_refresh_token(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -352,7 +340,7 @@ def test_oauth2_password_credentials_flow_refresh_token(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     # response for refresh token grant
@@ -376,14 +364,12 @@ def test_oauth2_password_credentials_flow_refresh_token(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_password_credentials_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_oauth2_password_credentials_flow_refresh_token_invalid(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -406,7 +392,7 @@ def test_oauth2_password_credentials_flow_refresh_token_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     # response for refresh token grant
@@ -438,14 +424,14 @@ def test_oauth2_password_credentials_flow_refresh_token_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_password_credentials_flow_refresh_token_access_token_not_expired(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -468,7 +454,7 @@ def test_oauth2_password_credentials_flow_refresh_token_access_token_not_expired
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     httpx_mock.add_response(
@@ -479,12 +465,12 @@ def test_oauth2_password_credentials_flow_refresh_token_access_token_not_expired
         },
     )
     # expect Bearer token to remain the same
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -507,12 +493,12 @@ def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx_mock: HTTPXMock):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -538,12 +524,12 @@ def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx_mock: HTTPX
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx_mock: HTTPXMock):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -569,12 +555,12 @@ def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx_mock: HTT
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPXMock):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -584,15 +570,13 @@ def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPXMock):
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest, match="failure"):
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="failure"):
             client.get("https://authorized_only", auth=auth)
 
 
-def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_with_invalid_grant_request_invalid_request_error(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -602,8 +586,8 @@ def test_with_invalid_grant_request_invalid_request_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -618,7 +602,7 @@ def test_with_invalid_grant_request_invalid_request_error(
 def test_with_invalid_grant_request_invalid_request_error_and_error_description(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -628,8 +612,8 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "invalid_request: desc of the error"
@@ -638,7 +622,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -652,20 +636,20 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url"
     )
 
 
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -680,18 +664,18 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {{'other': 'other info'}}"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {'other': 'other info'}"
     )
 
 
 def test_with_invalid_grant_request_without_error(token_cache, httpx_mock: HTTPXMock):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -701,17 +685,15 @@ def test_with_invalid_grant_request_without_error(token_cache, httpx_mock: HTTPX
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "{'other': 'other info'}"
 
 
-def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -721,8 +703,8 @@ def test_with_invalid_grant_request_invalid_client_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -738,10 +720,8 @@ def test_with_invalid_grant_request_invalid_client_error(
     )
 
 
-def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -751,8 +731,8 @@ def test_with_invalid_grant_request_invalid_grant_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -764,10 +744,8 @@ def test_with_invalid_grant_request_invalid_grant_error(
     )
 
 
-def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_with_invalid_grant_request_unauthorized_client_error(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -777,8 +755,8 @@ def test_with_invalid_grant_request_unauthorized_client_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -791,7 +769,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
 def test_with_invalid_grant_request_unsupported_grant_type_error(
     token_cache, httpx_mock: HTTPXMock
 ):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -801,8 +779,8 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -812,10 +790,8 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
     )
 
 
-def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock
-):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx_mock: HTTPXMock):
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
     httpx_mock.add_response(
@@ -825,8 +801,8 @@ def test_with_invalid_grant_request_invalid_scope_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -837,7 +813,7 @@ def test_with_invalid_grant_request_invalid_scope_error(
 
 
 def test_without_expected_token(token_cache, httpx_mock: HTTPXMock):
-    auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token",
         username="test_user",
         password="test_pwd",
@@ -855,8 +831,8 @@ def test_without_expected_token(token_cache, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.GrantNotProvided) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.GrantNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (

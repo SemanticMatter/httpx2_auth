@@ -1,10 +1,10 @@
 from json import JSONDecodeError
-from typing import Union
+from typing import ClassVar
 
-import httpx
+import httpx2
 
 
-class HttpxAuthException(httpx.HTTPError): ...
+class HttpxAuthException(httpx2.HTTPError): ...
 
 
 class AuthenticationFailed(HttpxAuthException):
@@ -45,7 +45,7 @@ class InvalidGrantRequest(HttpxAuthException):
     """
 
     # https://tools.ietf.org/html/rfc6749#section-5.2
-    request_errors = {
+    request_errors: ClassVar[dict[str, str]] = {
         "invalid_request": "The request is missing a required parameter, includes an unsupported parameter value (other than grant type), repeats a parameter, includes multiple credentials, utilizes more than one mechanism for authenticating the client, or is otherwise malformed.",
         "invalid_client": 'Client authentication failed (e.g., unknown client, no client authentication included, or unsupported authentication method).  The authorization server MAY return an HTTP 401 (Unauthorized) status code to indicate which HTTP authentication schemes are supported.  If the client attempted to authenticate via the "Authorization" request header field, the authorization server MUST respond with an HTTP 401 (Unauthorized) status code and include the "WWW-Authenticate" response header field matching the authentication scheme used by the client.',
         "invalid_grant": "The provided authorization grant (e.g., authorization code, resource owner credentials) or refresh token is invalid, expired, revoked, does not match the redirection URI used in the authorization request, or was issued to another client.",
@@ -56,7 +56,7 @@ class InvalidGrantRequest(HttpxAuthException):
 
     # https://tools.ietf.org/html/rfc6749#section-4.2.2.1
     # https://tools.ietf.org/html/rfc6749#section-4.1.2.1
-    browser_errors = {
+    browser_errors: ClassVar[dict[str, str]] = {
         "invalid_request": "The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed.",
         "unauthorized_client": "The client is not authorized to request an authorization code or an access token using this method.",
         "access_denied": "The resource owner or authorization server denied the request.",
@@ -66,11 +66,11 @@ class InvalidGrantRequest(HttpxAuthException):
         "temporarily_unavailable": "The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.  (This error code is needed because a 503 Service Unavailable HTTP status code cannot be returned to the client via an HTTP redirect.)",
     }
 
-    def __init__(self, response: Union[httpx.Response, dict]):
+    def __init__(self, response: httpx2.Response | dict):
         HttpxAuthException.__init__(self, InvalidGrantRequest.to_message(response))
 
     @staticmethod
-    def to_message(response: Union[httpx.Response, dict]) -> str:
+    def to_message(response: httpx2.Response | dict) -> str:
         """
         Handle response as described in:
             * https://tools.ietf.org/html/rfc6749#section-5.2
@@ -121,15 +121,11 @@ class StateNotProvided(HttpxAuthException):
     """State was not provided."""
 
     def __init__(self, dictionary_without_state: dict):
-        HttpxAuthException.__init__(
-            self, f"state not provided within {dictionary_without_state}."
-        )
+        HttpxAuthException.__init__(self, f"state not provided within {dictionary_without_state}.")
 
 
 class TokenExpiryNotProvided(HttpxAuthException):
     """Token expiry was not provided."""
 
     def __init__(self, token_body: dict):
-        HttpxAuthException.__init__(
-            self, f"Expiry (exp) is not provided in {token_body}."
-        )
+        HttpxAuthException.__init__(self, f"Expiry (exp) is not provided in {token_body}.")

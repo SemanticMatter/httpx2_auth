@@ -2,31 +2,27 @@ import datetime
 import logging
 import pathlib
 
-import httpx
-import pytest
+import httpx2
 import jwt
+import pytest
 
-import httpx_auth
-import httpx_auth._oauth2.tokens
+import httpx2_auth
+import httpx2_auth._oauth2.tokens
 
 
 @pytest.fixture
 def token_cache(tmp_path):
-    _token_cache = httpx_auth.JsonTokenFileCache(tmp_path / "my_tokens.cache")
+    _token_cache = httpx2_auth.JsonTokenFileCache(tmp_path / "my_tokens.cache")
     yield _token_cache
     _token_cache.clear()
 
 
 def test_add_bearer_tokens(token_cache):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache._add_bearer_token("key1", token1)
 
-    expiry_in_2_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=2)
+    expiry_in_2_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=2)
     token2 = jwt.encode({"exp": expiry_in_2_hour}, "secret")
     token_cache._add_bearer_token("key2", token2)
 
@@ -40,34 +36,26 @@ def test_add_bearer_tokens(token_cache):
 
 
 def test_save_bearer_tokens(token_cache, tmp_path):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache._add_bearer_token("key1", token1)
 
-    expiry_in_2_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=2)
+    expiry_in_2_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=2)
     token2 = jwt.encode({"exp": expiry_in_2_hour}, "secret")
     token_cache._add_bearer_token("key2", token2)
 
-    same_cache = httpx_auth.JsonTokenFileCache(tmp_path / "my_tokens.cache")
+    same_cache = httpx2_auth.JsonTokenFileCache(tmp_path / "my_tokens.cache")
     assert same_cache.get_token("key1") == token1
     assert same_cache.get_token("key2") == token2
 
 
-def test_save_bearer_token_exception_handling(
-    token_cache, tmp_path, monkeypatch, caplog
-):
+def test_save_bearer_token_exception_handling(token_cache, tmp_path, monkeypatch, caplog):
     def failing_dump(*args):
         raise Exception("Failure")
 
-    monkeypatch.setattr(httpx_auth._oauth2.tokens.json, "dump", failing_dump)
+    monkeypatch.setattr(httpx2_auth._oauth2.tokens.json, "dump", failing_dump)
 
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
 
     caplog.set_level(logging.DEBUG)
@@ -75,12 +63,12 @@ def test_save_bearer_token_exception_handling(
     # Assert that the exception is not thrown
     token_cache._add_bearer_token("key1", token1)
 
-    same_cache = httpx_auth.JsonTokenFileCache(tmp_path / "my_tokens.cache")
-    with pytest.raises(httpx_auth.AuthenticationFailed) as exception_info:
+    same_cache = httpx2_auth.JsonTokenFileCache(tmp_path / "my_tokens.cache")
+    with pytest.raises(httpx2_auth.AuthenticationFailed) as exception_info:
         same_cache.get_token("key1")
     assert str(exception_info.value) == "User was not authenticated."
-    assert isinstance(exception_info.value, httpx_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
 
     assert caplog.messages == [
         "Cannot save tokens.",
@@ -94,7 +82,7 @@ def test_save_bearer_token_exception_handling(
 
 def test_missing_token_on_empty_cache(token_cache, caplog):
     caplog.set_level(logging.DEBUG)
-    with pytest.raises(httpx_auth.AuthenticationFailed):
+    with pytest.raises(httpx2_auth.AuthenticationFailed):
         token_cache.get_token("key1")
     assert caplog.messages == [
         'Retrieving token with "key1" key.',
@@ -105,14 +93,12 @@ def test_missing_token_on_empty_cache(token_cache, caplog):
 
 
 def test_missing_token_on_non_empty_cache(token_cache, caplog):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache._add_bearer_token("key0", token1)
 
     caplog.set_level(logging.DEBUG)
-    with pytest.raises(httpx_auth.AuthenticationFailed):
+    with pytest.raises(httpx2_auth.AuthenticationFailed):
         token_cache.get_token("key1")
     assert caplog.messages == [
         'Retrieving token with "key1" key.',
@@ -122,20 +108,14 @@ def test_missing_token_on_non_empty_cache(token_cache, caplog):
 
 
 def test_missing_token_function(token_cache):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token = jwt.encode({"exp": expiry_in_1_hour}, "secret")
-    retrieved_token = token_cache.get_token(
-        "key1", on_missing_token=lambda: ("key1", token)
-    )
+    retrieved_token = token_cache.get_token("key1", on_missing_token=lambda: ("key1", token))
     assert retrieved_token == token
 
 
 def test_token_without_refresh_token(token_cache):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     # add token without refresh token
     token = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache.tokens["key1"] = (

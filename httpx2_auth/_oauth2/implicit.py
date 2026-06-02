@@ -1,16 +1,14 @@
 import uuid
 from hashlib import sha512
 
-import httpx
-
-from httpx_auth._authentication import SupportMultiAuth
-from httpx_auth._oauth2 import authentication_responses_server
-from httpx_auth._oauth2.browser import BrowserAuth
-from httpx_auth._oauth2.common import (
+from httpx2_auth._authentication import SupportMultiAuth
+from httpx2_auth._oauth2 import authentication_responses_server
+from httpx2_auth._oauth2.browser import BrowserAuth
+from httpx2_auth._oauth2.common import (
     OAuth2BaseAuth,
     _add_parameters,
-    _pop_parameter,
     _get_query_parameter,
+    _pop_parameter,
 )
 
 
@@ -75,22 +73,19 @@ class OAuth2Implicit(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
         # As described in https://tools.ietf.org/html/rfc6749#section-4.2.2
         token_field_name = kwargs.pop("token_field_name", None)
         if not token_field_name:
-            token_field_name = (
-                "id_token" if "id_token" == response_type else "access_token"
-            )
+            token_field_name = "id_token" if response_type == "id_token" else "access_token"
 
         early_expiry = float(kwargs.pop("early_expiry", None) or 30.0)
 
-        authorization_url_without_nonce = _add_parameters(
-            self.authorization_url, kwargs
-        )
+        authorization_url_without_nonce = _add_parameters(self.authorization_url, kwargs)
         authorization_url_without_nonce, nonce = _pop_parameter(
             authorization_url_without_nonce, "nonce"
         )
-        state = sha512(
-            authorization_url_without_nonce.encode("unicode_escape")
-        ).hexdigest()
-        custom_parameters = {"state": state, "redirect_uri": self.redirect_uri}
+        state = sha512(authorization_url_without_nonce.encode("unicode_escape")).hexdigest()
+        custom_parameters: dict[str, str | list[str]] = {
+            "state": state,
+            "redirect_uri": self.redirect_uri,
+        }
         if nonce:
             custom_parameters["nonce"] = nonce
         grant_url = _add_parameters(authorization_url_without_nonce, custom_parameters)

@@ -1,11 +1,11 @@
 import pytest
 
-import httpx_auth
+import httpx2_auth
 
 
 def test_instance_is_mandatory():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.OktaResourceOwnerPasswordCredentials(
+        httpx2_auth.OktaResourceOwnerPasswordCredentials(
             "",
             "test_user",
             "test_pwd",
@@ -17,7 +17,7 @@ def test_instance_is_mandatory():
 
 def test_user_name_is_mandatory():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.OktaResourceOwnerPasswordCredentials(
+        httpx2_auth.OktaResourceOwnerPasswordCredentials(
             "https://test_url",
             "",
             "test_pwd",
@@ -29,7 +29,7 @@ def test_user_name_is_mandatory():
 
 def test_password_is_mandatory():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.OktaResourceOwnerPasswordCredentials(
+        httpx2_auth.OktaResourceOwnerPasswordCredentials(
             "https://test_url",
             "test_user",
             "",
@@ -41,7 +41,7 @@ def test_password_is_mandatory():
 
 def test_client_id_is_mandatory():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.OktaResourceOwnerPasswordCredentials(
+        httpx2_auth.OktaResourceOwnerPasswordCredentials(
             "https://test_url",
             "test_user",
             "test_pwd",
@@ -53,7 +53,7 @@ def test_client_id_is_mandatory():
 
 def test_client_secret_is_mandatory():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.OktaResourceOwnerPasswordCredentials(
+        httpx2_auth.OktaResourceOwnerPasswordCredentials(
             "https://test_url",
             "test_user",
             "test_pwd",
@@ -65,7 +65,7 @@ def test_client_secret_is_mandatory():
 
 def test_header_value_must_contains_token():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.OktaResourceOwnerPasswordCredentials(
+        httpx2_auth.OktaResourceOwnerPasswordCredentials(
             "https://test_url",
             "test_user",
             "test_pwd",

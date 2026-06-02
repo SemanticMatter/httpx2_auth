@@ -12,7 +12,9 @@ class BrowserAuth:
         redirect_uri_domain = kwargs.pop("redirect_uri_domain", None) or "localhost"
         redirect_uri_endpoint = kwargs.pop("redirect_uri_endpoint", None) or ""
         self.redirect_uri_port = int(kwargs.pop("redirect_uri_port", None) or 5000)
-        self.redirect_uri = f"http://{redirect_uri_domain}:{self.redirect_uri_port}/{redirect_uri_endpoint}"
+        self.redirect_uri = (
+            f"http://{redirect_uri_domain}:{self.redirect_uri_port}/{redirect_uri_endpoint}"
+        )
 
         # Time is expressed in seconds
         self.timeout = float(kwargs.pop("timeout", None) or 60)
@@ -92,8 +94,8 @@ p {{
             <p>{information}</p>
         </div>
         <div class="more">
-            <a href="https://colin-b.github.io/httpx_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
-            <a href="https://github.com/Colin-b/httpx_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
+            <a href="https://SemanticMatter.github.io/httpx2_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
+            <a href="https://github.com/SemanticMatter/httpx2_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
         </div>
     </body>
 </html>"""
@@ -113,9 +115,9 @@ p {{
         self,
         *,
         success_display_time: int = 1,
-        success_html: str = None,
+        success_html: str | None = None,
         failure_display_time: int = 10_000,
-        failure_html: str = None,
+        failure_html: str | None = None,
     ):
         """
         :param success_display_time: In case a code/token is successfully received,

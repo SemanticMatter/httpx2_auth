@@ -1,17 +1,17 @@
-from pytest_httpx import HTTPXMock
+import httpx2
 import pytest
-import httpx
+from pytest_httpx2 import HTTPXMock
 
-import httpx_auth
-from httpx_auth.testing import BrowserMock, browser_mock, token_cache
-from httpx_auth._oauth2.tokens import to_expiry
+import httpx2_auth
+from httpx2_auth._oauth2.tokens import to_expiry
+from httpx2_auth.testing import BrowserMock
 
 
 def test_oauth2_authorization_code_flow_uses_provided_client(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    client = httpx2.Client(headers={"x-test": "Test value"})
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -37,7 +37,7 @@ def test_oauth2_authorization_code_flow_uses_provided_client(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -46,7 +46,7 @@ def test_oauth2_authorization_code_flow_uses_provided_client(
 def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -71,7 +71,7 @@ def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -80,15 +80,13 @@ def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
 def test_oauth2_authorization_code_flow_uses_custom_success(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx_auth.OAuth2.display.success_html = (
-        "<body><div>SUCCESS: {display_time}</div></body>"
-    )
+    httpx2_auth.OAuth2.display.success_html = "<body><div>SUCCESS: {display_time}</div></body>"
     tab = browser_mock.add_response(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
@@ -108,7 +106,7 @@ def test_oauth2_authorization_code_flow_uses_custom_success(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -117,22 +115,21 @@ def test_oauth2_authorization_code_flow_uses_custom_success(
 def test_oauth2_authorization_code_flow_uses_custom_failure(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
+    httpx2_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
     tab = browser_mock.add_response(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
         displayed_html="FAILURE: {display_time}\n{information}",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest):
-            client.get("https://authorized_only", auth=auth)
+    with httpx2.Client() as client, pytest.raises(httpx2_auth.InvalidGrantRequest):
+        client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure(
         "invalid_request: The request is missing a required parameter, includes an invalid parameter value, includes a parameter more than once, or is otherwise malformed."
@@ -142,7 +139,7 @@ def test_oauth2_authorization_code_flow_uses_custom_failure(
 def test_multiple_scopes_are_comma_separated(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope=["email", "read_stats"],
@@ -166,7 +163,7 @@ def test_multiple_scopes_are_comma_separated(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -175,7 +172,7 @@ def test_multiple_scopes_are_comma_separated(
 def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -199,7 +196,7 @@ def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -208,7 +205,7 @@ def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header
 def test_json_response_is_handled_even_if_unused(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -239,7 +236,7 @@ def test_json_response_is_handled_even_if_unused(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -248,7 +245,7 @@ def test_json_response_is_handled_even_if_unused(
 def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -279,7 +276,7 @@ def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -288,7 +285,7 @@ def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_
 def test_oauth2_authorization_code_flow_get_code_custom_expiry(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -308,14 +305,14 @@ def test_oauth2_authorization_code_flow_get_code_custom_expiry(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_authorization_code_flow_refresh_token(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -339,7 +336,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -359,14 +356,14 @@ def test_oauth2_authorization_code_flow_refresh_token(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_oauth2_authorization_code_flow_refresh_token_invalid(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -390,7 +387,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -424,7 +421,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -433,7 +430,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
 def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -457,7 +454,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -470,14 +467,14 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
         },
     )
     # expect Bearer token to remain the same
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
 def test_empty_token_is_invalid(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -494,8 +491,8 @@ def test_empty_token_is_invalid(
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.GrantNotProvided) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.GrantNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -508,7 +505,7 @@ def test_empty_token_is_invalid(
 def test_with_invalid_grant_request_no_json(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -525,8 +522,8 @@ def test_with_invalid_grant_request_no_json(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest, match="failure"):
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="failure"):
             client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -535,7 +532,7 @@ def test_with_invalid_grant_request_no_json(
 def test_with_invalid_grant_request_invalid_request_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -552,8 +549,8 @@ def test_with_invalid_grant_request_invalid_request_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -569,7 +566,7 @@ def test_with_invalid_grant_request_invalid_request_error(
 def test_with_invalid_grant_request_invalid_request_error_and_error_description(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -586,8 +583,8 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "invalid_request: desc of the error"
@@ -597,7 +594,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -618,13 +615,13 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url"
     )
     tab.assert_success()
 
@@ -632,7 +629,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -654,8 +651,8 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -668,7 +665,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 def test_with_invalid_grant_request_without_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -685,10 +682,8 @@ def test_with_invalid_grant_request_without_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(
-            httpx_auth.InvalidGrantRequest, match="{'other': 'other info'}"
-        ):
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"):
             client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -697,7 +692,7 @@ def test_with_invalid_grant_request_without_error(
 def test_with_invalid_grant_request_invalid_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -714,8 +709,8 @@ def test_with_invalid_grant_request_invalid_client_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -735,7 +730,7 @@ def test_with_invalid_grant_request_invalid_client_error(
 def test_with_invalid_grant_request_invalid_grant_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -752,8 +747,8 @@ def test_with_invalid_grant_request_invalid_grant_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -769,7 +764,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
 def test_with_invalid_grant_request_unauthorized_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -786,8 +781,8 @@ def test_with_invalid_grant_request_unauthorized_client_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -801,7 +796,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
 def test_with_invalid_grant_request_unsupported_grant_type_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -818,8 +813,8 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -833,7 +828,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
 def test_with_invalid_grant_request_invalid_scope_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -850,8 +845,8 @@ def test_with_invalid_grant_request_invalid_scope_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -865,7 +860,7 @@ def test_with_invalid_grant_request_invalid_scope_error(
 def test_with_invalid_token_request_invalid_request_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -876,8 +871,8 @@ def test_with_invalid_token_request_invalid_request_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -892,7 +887,7 @@ def test_with_invalid_token_request_invalid_request_error(
 def test_with_invalid_token_request_invalid_request_error_and_error_description(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -903,10 +898,8 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(
-            httpx_auth.InvalidGrantRequest, match="invalid_request: desc"
-        ):
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="invalid_request: desc"):
             client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure("invalid_request: desc")
@@ -915,7 +908,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
 def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -926,23 +919,21 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
         == "invalid_request: desc\nMore information can be found on https://test_url"
     )
-    tab.assert_failure(
-        "invalid_request: desc<br>More information can be found on https://test_url"
-    )
+    tab.assert_failure("invalid_request: desc<br>More information can be found on https://test_url")
 
 
 def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -953,8 +944,8 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url&other=test",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -969,7 +960,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
 def test_with_invalid_token_request_unauthorized_client_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -980,8 +971,8 @@ def test_with_invalid_token_request_unauthorized_client_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unauthorized_client",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -996,7 +987,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
 def test_with_invalid_token_request_access_denied_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -1007,8 +998,8 @@ def test_with_invalid_token_request_access_denied_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=access_denied",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1023,7 +1014,7 @@ def test_with_invalid_token_request_access_denied_error(
 def test_with_invalid_token_request_unsupported_response_type_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -1034,8 +1025,8 @@ def test_with_invalid_token_request_unsupported_response_type_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unsupported_response_type",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1050,7 +1041,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
 def test_with_invalid_token_request_invalid_scope_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -1061,23 +1052,21 @@ def test_with_invalid_token_request_invalid_scope_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_scope",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
         == "invalid_scope: The requested scope is invalid, unknown, or malformed."
     )
-    tab.assert_failure(
-        "invalid_scope: The requested scope is invalid, unknown, or malformed."
-    )
+    tab.assert_failure("invalid_scope: The requested scope is invalid, unknown, or malformed.")
 
 
 def test_with_invalid_token_request_server_error_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -1088,8 +1077,8 @@ def test_with_invalid_token_request_server_error_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=server_error",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1104,7 +1093,7 @@ def test_with_invalid_token_request_server_error_error(
 def test_with_invalid_token_request_temporarily_unavailable_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.WakaTimeAuthorizationCode(
+    auth = httpx2_auth.WakaTimeAuthorizationCode(
         "jPJQV0op6Pu3b66MWDi8b1wD",
         "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
         scope="email",
@@ -1115,8 +1104,8 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=temporarily_unavailable",
     )
 
-    with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+    with httpx2.Client() as client:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (

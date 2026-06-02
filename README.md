@@ -1,12 +1,21 @@
-<h2 align="center">Authentication for HTTPX</h2>
+<h2 align="center">Authentication for HTTPX2</h2>
+
+> [!NOTE]
+> This is a fork of [Colin-b/httpx_auth](https://github.com/Colin-b/httpx_auth) with support for [HTTPX2](https://httpx2.pydantic.dev).
+>
+> There is not associated docuemntation, and everything below this NOTE is the same as in the original repository.
+> With the exception of code snippets and links to create new issues.
+> These have been directed to this repository instead of the original one.
+>
+> For more information about this project, please refer to the original repository.
 
 <p align="center">
-<a href="https://pypi.org/project/httpx-auth/"><img alt="pypi version" src="https://img.shields.io/pypi/v/httpx_auth"></a>
-<a href="https://github.com/Colin-b/httpx_auth/actions"><img alt="Build status" src="https://github.com/Colin-b/httpx_auth/workflows/Release/badge.svg"></a>
-<a href="https://github.com/Colin-b/httpx_auth/actions"><img alt="Coverage" src="https://img.shields.io/badge/coverage-100%25-brightgreen"></a>
+<a href="https://pypi.org/project/httpx2-auth/"><img alt="pypi version" src="https://img.shields.io/pypi/v/httpx2_auth"></a>
+<a href="https://github.com/SemanticMatter/httpx2_auth/actions"><img alt="Build status" src="https://github.com/SemanticMatter/httpx2_auth/workflows/Release/badge.svg"></a>
+<a href="https://github.com/SemanticMatter/httpx2_auth/actions"><img alt="Coverage" src="https://img.shields.io/badge/coverage-100%25-brightgreen"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
-<a href="https://github.com/Colin-b/httpx_auth/actions"><img alt="Number of tests" src="https://img.shields.io/badge/tests-783 passed-blue"></a>
-<a href="https://pypi.org/project/httpx-auth/"><img alt="Number of downloads" src="https://img.shields.io/pypi/dm/httpx_auth"></a>
+<a href="https://github.com/SemanticMatter/httpx2_auth/actions"><img alt="Number of tests" src="https://img.shields.io/badge/tests-783 passed-blue"></a>
+<a href="https://pypi.org/project/httpx2-auth/"><img alt="Number of downloads" src="https://img.shields.io/pypi/dm/httpx2_auth"></a>
 </p>
 
 > [!NOTE]  
@@ -53,25 +62,31 @@ Provides authentication classes to be used with [`httpx`][1] [authentication par
 
 Most of [OAuth2](https://oauth.net/2/) flows are supported.
 
-If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/Colin-b/httpx_auth/issues/new).
+If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/SemanticMatter/httpx2_auth/issues/new).
 
 ### Authorization Code flow
 
 Authorization Code Grant is implemented following [rfc6749](https://tools.ietf.org/html/rfc6749#section-4.1).
 
-Use `httpx_auth.OAuth2AuthorizationCode` to configure this kind of authentication.
+Use `httpx2_auth.OAuth2AuthorizationCode` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OAuth2AuthorizationCode
+import httpx2
+from httpx2_auth import OAuth2AuthorizationCode
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=OAuth2AuthorizationCode('https://www.authorization.url', 'https://www.token.url'))
+with httpx2.Client() as client:
+    client.get(
+        "https://www.example.com",
+        auth=OAuth2AuthorizationCode(
+            "https://www.authorization.url", "https://www.token.url"
+        ),
+    )
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 #### Parameters
 
@@ -91,12 +106,12 @@ Note:
 | `code_field_name`       | Field name containing the code.                                                                                                                                                                                                                                                                   | Optional   | code           |
 | `username`              | User name in case basic authentication should be used to retrieve token.                                                                                                                                                                                                                          | Optional   |                |
 | `password`              | User password in case basic authentication should be used to retrieve token.                                                                                                                                                                                                                      | Optional   |                |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance.                                                                                                                                                                            | Optional   |                |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance.                                                                                                                                                                            | Optional   |                |
 
-Any other parameter will be put as query parameter in the authorization URL and as body parameters in the token URL.        
+Any other parameter will be put as query parameter in the authorization URL and as body parameters in the token URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `client_id`     | Corresponding to your Application ID (in Microsoft Azure app portal) |
@@ -107,27 +122,30 @@ Usual extra parameters are:
 
 Most of [OAuth2](https://oauth.net/2/) Authorization Code Grant providers are supported.
 
-If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/Colin-b/httpx_auth/issues/new).
+If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/SemanticMatter/httpx2_auth/issues/new).
 
 ##### Okta (OAuth2 Authorization Code)
 
 [Okta Authorization Code Grant](https://developer.okta.com/docs/guides/implement-auth-code/overview/) providing access tokens is supported.
 
-Use `httpx_auth.OktaAuthorizationCode` to configure this kind of authentication.
+Use `httpx2_auth.OktaAuthorizationCode` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OktaAuthorizationCode
+import httpx2
+from httpx2_auth import OktaAuthorizationCode
 
-
-okta = OktaAuthorizationCode(instance='testserver.okta-emea.com', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=okta)
+okta = OktaAuthorizationCode(
+    instance="testserver.okta-emea.com",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=okta)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 ###### Parameters
 
@@ -147,12 +165,12 @@ Note:
 | `timeout`               | Maximum amount of seconds to wait for a token to be received once requested. | Optional | 60 |
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
 
-Any other parameter will be put as query parameter in the authorization URL.        
+Any other parameter will be put as query parameter in the authorization URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `prompt`        | none to avoid prompting the user if a session is already opened.     |
@@ -161,21 +179,23 @@ Usual extra parameters are:
 
 [WakaTime Authorization Code Grant](https://wakatime.com/developers#authentication) providing access tokens is supported.
 
-Use `httpx_auth.WakaTimeAuthorizationCode` to configure this kind of authentication.
+Use `httpx2_auth.WakaTimeAuthorizationCode` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import WakaTimeAuthorizationCode
+import httpx2
+from httpx2_auth import WakaTimeAuthorizationCode
 
-
-waka_time = WakaTimeAuthorizationCode(client_id="aPJQV0op6Pu3b66MWDi9b1wB", client_secret="waka_sec_0c5MB", scope="email")
-with httpx.Client() as client:
-    client.get('https://wakatime.com/api/v1/users/current', auth=waka_time)
+waka_time = WakaTimeAuthorizationCode(
+    client_id="aPJQV0op6Pu3b66MWDi9b1wB", client_secret="waka_sec_0c5MB", scope="email"
+)
+with httpx2.Client() as client:
+    client.get("https://wakatime.com/api/v1/users/current", auth=waka_time)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 ###### Parameters
 
@@ -194,7 +214,7 @@ Note:
 | `timeout`               | Maximum amount of seconds to wait for a token to be received once requested. | Optional  | 60                                           |
 | `header_name`           | Name of the header field used to send token. | Optional  | Authorization                                |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional  | Bearer {token}                               |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional  |                                              |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional  |                                              |
 
 Any other parameter will be put as query parameter in the authorization URL.
 
@@ -202,21 +222,27 @@ Any other parameter will be put as query parameter in the authorization URL.
 
 Proof Key for Code Exchange is implemented following [rfc7636](https://tools.ietf.org/html/rfc7636).
 
-Use `httpx_auth.OAuth2AuthorizationCodePKCE` to configure this kind of authentication.
+Use `httpx2_auth.OAuth2AuthorizationCodePKCE` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OAuth2AuthorizationCodePKCE
+import httpx2
+from httpx2_auth import OAuth2AuthorizationCodePKCE
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=OAuth2AuthorizationCodePKCE('https://www.authorization.url', 'https://www.token.url'))
+with httpx2.Client() as client:
+    client.get(
+        "https://www.example.com",
+        auth=OAuth2AuthorizationCodePKCE(
+            "https://www.authorization.url", "https://www.token.url"
+        ),
+    )
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
-#### Parameters 
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+#### Parameters
 
 | Name                    | Description                | Mandatory | Default value |
 |:------------------------|:---------------------------|:----------|:--------------|
@@ -232,12 +258,12 @@ Note:
 | `token_field_name`      | Field name containing the token. | Optional | access_token |
 | `early_expiry`          | Number of seconds before actual token expiry where token will be considered as expired. Used to ensure token will not expire between the time of retrieval and the time the request reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry. | Optional  | 30.0  |
 | `code_field_name`       | Field name containing the code. | Optional | code |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
 
-Any other parameter will be put as query parameter in the authorization URL and as body parameters in the token URL.        
+Any other parameter will be put as query parameter in the authorization URL and as body parameters in the token URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `client_id`     | Corresponding to your Application ID (in Microsoft Azure app portal) |
@@ -248,27 +274,30 @@ Usual extra parameters are:
 
 Most of [OAuth2](https://oauth.net/2/) Proof Key for Code Exchange providers are supported.
 
-If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/Colin-b/httpx_auth/issues/new).
+If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/SemanticMatter/httpx2_auth/issues/new).
 
 ##### Okta (OAuth2 Proof Key for Code Exchange)
 
 [Okta Proof Key for Code Exchange](https://developer.okta.com/docs/guides/implement-auth-code-pkce/overview/) providing access tokens is supported.
 
-Use `httpx_auth.OktaAuthorizationCodePKCE` to configure this kind of authentication.
+Use `httpx2_auth.OktaAuthorizationCodePKCE` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OktaAuthorizationCodePKCE
+import httpx2
+from httpx2_auth import OktaAuthorizationCodePKCE
 
-
-okta = OktaAuthorizationCodePKCE(instance='testserver.okta-emea.com', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=okta)
+okta = OktaAuthorizationCodePKCE(
+    instance="testserver.okta-emea.com",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=okta)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 ###### Parameters
 
@@ -289,12 +318,12 @@ Note:
 | `timeout`               | Maximum amount of seconds to wait for a token to be received once requested. | Optional | 60 |
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
 
-Any other parameter will be put as query parameter in the authorization URL and as body parameters in the token URL.        
+Any other parameter will be put as query parameter in the authorization URL and as body parameters in the token URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `client_secret`        | If client is not authenticated with the authorization server     |
@@ -304,18 +333,24 @@ Usual extra parameters are:
 
 Resource Owner Password Credentials Grant is implemented following [rfc6749](https://tools.ietf.org/html/rfc6749#section-4.3).
 
-Use `httpx_auth.OAuth2ResourceOwnerPasswordCredentials` to configure this kind of authentication.
+Use `httpx2_auth.OAuth2ResourceOwnerPasswordCredentials` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OAuth2ResourceOwnerPasswordCredentials
+import httpx2
+from httpx2_auth import OAuth2ResourceOwnerPasswordCredentials
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=OAuth2ResourceOwnerPasswordCredentials('https://www.token.url', 'user name', 'user password'))
+with httpx2.Client() as client:
+    client.get(
+        "https://www.example.com",
+        auth=OAuth2ResourceOwnerPasswordCredentials(
+            "https://www.token.url", "user name", "user password"
+        ),
+    )
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
 
 #### Parameters
 
@@ -324,14 +359,14 @@ Note:
 | `token_url`          | OAuth 2 token URL.                                                                                                                                                                                                                                                                                | Mandatory |               |
 | `username`           | Resource owner user name.                                                                                                                                                                                                                                                                         | Mandatory |               |
 | `password`           | Resource owner password.                                                                                                                                                                                                                                                                          | Mandatory |               |
-| `client_auth`        | Client authentication if the client type is confidential or the client was issued client credentials (or assigned other authentication requirements). Can be a tuple or any httpx authentication class instance.                                                                                  | Optional  |               |
+| `client_auth`        | Client authentication if the client type is confidential or the client was issued client credentials (or assigned other authentication requirements). Can be a tuple or any httpx2 authentication class instance.                                                                                  | Optional  |               |
 | `timeout`            | Maximum amount of seconds to wait for a token to be received once requested.                                                                                                                                                                                                                      | Optional  | 60            |
 | `header_name`        | Name of the header field used to send token.                                                                                                                                                                                                                                                      | Optional  | Authorization |
 | `header_value`       | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token.                                                                                                                                                                                        | Optional  | Bearer {token} |
 | `scope`              | Scope parameter sent to token URL as body. Can also be a list of scopes.                                                                                                                                                                                                                          | Optional  |  |
 | `token_field_name`   | Field name containing the token.                                                                                                                                                                                                                                                                  | Optional  | access_token  |
 | `early_expiry`       | Number of seconds before actual token expiry where token will be considered as expired. Used to ensure token will not expire between the time of retrieval and the time the request reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry. | Optional  | 30.0  |
-| `client`             | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance.                                                                                                                                                                            | Optional  |  |
+| `client`             | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance.                                                                                                                                                                            | Optional  |  |
 
 Any other parameter will be put as body parameter in the token URL.
 
@@ -339,26 +374,32 @@ Any other parameter will be put as body parameter in the token URL.
 
 Most of [OAuth2](https://oauth.net/2/) Resource Owner Password Credentials providers are supported.
 
-If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/Colin-b/httpx_auth/issues/new).
+If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/SemanticMatter/httpx2_auth/issues/new).
 
 ##### Okta (OAuth2 Resource Owner Password Credentials)
 
 [Okta Resource Owner Password Credentials](https://developer.okta.com/docs/guides/implement-grant-type/ropassword/main/) providing access tokens is supported.
 
-Use `httpx_auth.OktaResourceOwnerPasswordCredentials` to configure this kind of authentication.
+Use `httpx2_auth.OktaResourceOwnerPasswordCredentials` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OktaResourceOwnerPasswordCredentials
+import httpx2
+from httpx2_auth import OktaResourceOwnerPasswordCredentials
 
-
-okta = OktaResourceOwnerPasswordCredentials(instance='testserver.okta-emea.com', username='user name', password='user password', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd', client_secret="0c5MB")
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=okta)
+okta = OktaResourceOwnerPasswordCredentials(
+    instance="testserver.okta-emea.com",
+    username="user name",
+    password="user password",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+    client_secret="0c5MB",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=okta)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
 
 ###### Parameters
 
@@ -375,27 +416,32 @@ Note:
 | `scope`                 | Scope parameter sent in query. Can also be a list of scopes. | Optional | openid |
 | `token_field_name`      | Field name containing the token. | Optional | access_token |
 | `early_expiry`          | Number of seconds before actual token expiry where token will be considered as expired. Used to ensure token will not expire between the time of retrieval and the time the request reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry. | Optional  | 30.0  |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
 
 Any other parameter will be put as body parameters in the token URL.
-
 
 ### Client Credentials flow
 
 Client Credentials Grant is implemented following [rfc6749](https://tools.ietf.org/html/rfc6749#section-4.4).
 
-Use `httpx_auth.OAuth2ClientCredentials` to configure this kind of authentication.
+Use `httpx2_auth.OAuth2ClientCredentials` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OAuth2ClientCredentials
+import httpx2
+from httpx2_auth import OAuth2ClientCredentials
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=OAuth2ClientCredentials('https://www.token.url', client_id='id', client_secret='secret'))
+with httpx2.Client() as client:
+    client.get(
+        "https://www.example.com",
+        auth=OAuth2ClientCredentials(
+            "https://www.token.url", client_id="id", client_secret="secret"
+        ),
+    )
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
 
 #### Parameters
 
@@ -410,7 +456,7 @@ Note:
 | `scope`            | Scope parameter sent to token URL as body. Can also be a list of scopes. | Optional |  |
 | `token_field_name` | Field name containing the token.             | Optional  | access_token  |
 | `early_expiry`     | Number of seconds before actual token expiry where token will be considered as expired. Used to ensure token will not expire between the time of retrieval and the time the request reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry. | Optional  | 30.0  |
-| `client`           | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
+| `client`           | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional |  |
 
 Any other parameter will be put as body parameter in the token URL.
 
@@ -418,26 +464,31 @@ Any other parameter will be put as body parameter in the token URL.
 
 Most of [OAuth2](https://oauth.net/2/) Client Credentials Grant providers are supported.
 
-If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/Colin-b/httpx_auth/issues/new).
+If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/SemanticMatter/httpx2_auth/issues/new).
 
 ##### Okta (OAuth2 Client Credentials)
 
 [Okta Client Credentials Grant](https://developer.okta.com/docs/guides/implement-grant-type/clientcreds/main/) providing access tokens is supported.
 
-Use `httpx_auth.OktaClientCredentials` to configure this kind of authentication.
+Use `httpx2_auth.OktaClientCredentials` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OktaClientCredentials
+import httpx2
+from httpx2_auth import OktaClientCredentials
 
-
-okta = OktaClientCredentials(instance='testserver.okta-emea.com', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd', client_secret="secret", scope=["scope1", "scope2"])
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=okta)
+okta = OktaClientCredentials(
+    instance="testserver.okta-emea.com",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+    client_secret="secret",
+    scope=["scope1", "scope2"],
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=okta)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
 
 ###### Parameters
 
@@ -453,27 +504,30 @@ Note:
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional  | Bearer {token} |
 | `token_field_name`      | Field name containing the token. | Optional  | access_token |
 | `early_expiry`          | Number of seconds before actual token expiry where token will be considered as expired. Used to ensure token will not expire between the time of retrieval and the time the request reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry. | Optional  | 30.0  |
-| `client`                | `httpx.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional  |  |
+| `client`                | `httpx2.Client` instance that will be used to request the token. Use it to provide a custom proxying rule for instance. | Optional  |  |
 
-Any other parameter will be put as query parameter in the token URL.        
+Any other parameter will be put as query parameter in the token URL.  
 
 ### Implicit flow
 
 Implicit Grant is implemented following [rfc6749](https://tools.ietf.org/html/rfc6749#section-4.2).
 
-Use `httpx_auth.OAuth2Implicit` to configure this kind of authentication.
+Use `httpx2_auth.OAuth2Implicit` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OAuth2Implicit
+import httpx2
+from httpx2_auth import OAuth2Implicit
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=OAuth2Implicit('https://www.authorization.url'))
+with httpx2.Client() as client:
+    client.get(
+        "https://www.example.com", auth=OAuth2Implicit("https://www.authorization.url")
+    )
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 #### Parameters
 
@@ -490,10 +544,10 @@ Note:
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
 
-Any other parameter will be put as query parameter in the authorization URL.        
+Any other parameter will be put as query parameter in the authorization URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `client_id`     | Corresponding to your Application ID (in Microsoft Azure app portal) |
@@ -504,27 +558,30 @@ Usual extra parameters are:
 
 Most of [OAuth2](https://oauth.net/2/) Implicit Grant providers are supported.
 
-If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/Colin-b/httpx_auth/issues/new).
+If the one you are looking for is not yet supported, feel free to [ask for its implementation](https://github.com/SemanticMatter/httpx2_auth/issues/new).
 
 ##### Microsoft - Azure Active Directory (OAuth2 Access Token)
 
 [Microsoft identity platform access tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/access-tokens) are supported.
 
-Use `httpx_auth.AzureActiveDirectoryImplicit` to configure this kind of authentication.
+Use `httpx2_auth.AzureActiveDirectoryImplicit` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import AzureActiveDirectoryImplicit
+import httpx2
+from httpx2_auth import AzureActiveDirectoryImplicit
 
-
-aad = AzureActiveDirectoryImplicit(tenant_id='45239d18-c68c-4c47-8bdd-ce71ea1d50cd', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=aad)
+aad = AzureActiveDirectoryImplicit(
+    tenant_id="45239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=aad)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 You can retrieve Microsoft Azure Active Directory application information thanks to the [application list on Azure portal](https://portal.azure.com/#blade/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/AllApps/menuId/).
 
@@ -545,10 +602,10 @@ You can retrieve Microsoft Azure Active Directory application information thanks
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
 
-Any other parameter will be put as query parameter in the authorization URL.        
+Any other parameter will be put as query parameter in the authorization URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `prompt`        | none to avoid prompting the user if a session is already opened.     |
@@ -557,21 +614,24 @@ Usual extra parameters are:
 
 [Microsoft identity platform ID tokens](https://docs.microsoft.com/en-us/azure/active-directory/develop/id-tokens) are supported.
 
-Use `httpx_auth.AzureActiveDirectoryImplicitIdToken` to configure this kind of authentication.
+Use `httpx2_auth.AzureActiveDirectoryImplicitIdToken` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import AzureActiveDirectoryImplicitIdToken
+import httpx2
+from httpx2_auth import AzureActiveDirectoryImplicitIdToken
 
-
-aad = AzureActiveDirectoryImplicitIdToken(tenant_id='45239d18-c68c-4c47-8bdd-ce71ea1d50cd', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=aad)
+aad = AzureActiveDirectoryImplicitIdToken(
+    tenant_id="45239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=aad)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 You can retrieve Microsoft Azure Active Directory application information thanks to the [application list on Azure portal](https://portal.azure.com/#blade/Microsoft_AAD_IAM/StartboardApplicationsMenuBlade/AllApps/menuId/).
 
@@ -592,10 +652,10 @@ You can retrieve Microsoft Azure Active Directory application information thanks
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
 
-Any other parameter will be put as query parameter in the authorization URL.        
+Any other parameter will be put as query parameter in the authorization URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `prompt`        | none to avoid prompting the user if a session is already opened.     |
@@ -604,21 +664,24 @@ Usual extra parameters are:
 
 [Okta Implicit Grant](https://developer.okta.com/docs/guides/implement-implicit/overview/) providing access tokens is supported.
 
-Use `httpx_auth.OktaImplicit` to configure this kind of authentication.
+Use `httpx2_auth.OktaImplicit` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OktaImplicit
+import httpx2
+from httpx2_auth import OktaImplicit
 
-
-okta = OktaImplicit(instance='testserver.okta-emea.com', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=okta)
+okta = OktaImplicit(
+    instance="testserver.okta-emea.com",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=okta)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 ###### Parameters
 
@@ -639,10 +702,10 @@ Note:
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
 
-Any other parameter will be put as query parameter in the authorization URL.        
+Any other parameter will be put as query parameter in the authorization URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `prompt`        | none to avoid prompting the user if a session is already opened.     |
@@ -651,21 +714,24 @@ Usual extra parameters are:
 
 [Okta Implicit Grant](https://developer.okta.com/docs/guides/implement-implicit/overview/) providing ID tokens is supported.
 
-Use `httpx_auth.OktaImplicitIdToken` to configure this kind of authentication.
+Use `httpx2_auth.OktaImplicitIdToken` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import OktaImplicitIdToken
+import httpx2
+from httpx2_auth import OktaImplicitIdToken
 
-
-okta = OktaImplicitIdToken(instance='testserver.okta-emea.com', client_id='54239d18-c68c-4c47-8bdd-ce71ea1d50cd')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=okta)
+okta = OktaImplicitIdToken(
+    instance="testserver.okta-emea.com",
+    client_id="54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
+)
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=okta)
 ```
 
 Note:
-* You can persist tokens thanks to [the token cache](#managing-token-cache).
-* You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
+
+- You can persist tokens thanks to [the token cache](#managing-token-cache).
+- You can tweak web browser interaction thanks to [the display settings](#managing-the-web-browser).
 
 ###### Parameters
 
@@ -686,10 +752,10 @@ Note:
 | `header_name`           | Name of the header field used to send token. | Optional | Authorization |
 | `header_value`          | Format used to send the token value. "{token}" must be present as it will be replaced by the actual token. | Optional | Bearer {token} |
 
-Any other parameter will be put as query parameter in the authorization URL.        
+Any other parameter will be put as query parameter in the authorization URL.  
 
 Usual extra parameters are:
-        
+
 | Name            | Description                                                          |
 |:----------------|:---------------------------------------------------------------------|
 | `prompt`        | none to avoid prompting the user if a session is already opened.     |
@@ -705,18 +771,19 @@ You need to provide the location of your token cache file. It can be a full or r
 If the file already exists it will be used, if the file do not exist it will be created.
 
 ```python
-from httpx_auth import OAuth2, JsonTokenFileCache
+from httpx2_auth import OAuth2, JsonTokenFileCache
 
-OAuth2.token_cache = JsonTokenFileCache('path/to/my_token_cache.json')
+OAuth2.token_cache = JsonTokenFileCache("path/to/my_token_cache.json")
 ```
 
 ### Managing the web browser
 
 #### Authentication response pages
 
-You can configure the browser display settings thanks to `httpx_auth.OAuth2.display` as in the following:
+You can configure the browser display settings thanks to `httpx2_auth.OAuth2.display` as in the following:
+
 ```python
-from httpx_auth import OAuth2, DisplaySettings
+from httpx2_auth import OAuth2, DisplaySettings
 
 OAuth2.display = DisplaySettings()
 ```
@@ -732,7 +799,7 @@ The following parameters can be provided to `DisplaySettings`:
 
 #### Text-mode web browser
 
-This project uses [`webbrowser.open()`][4] to open a web browser to support authentication flows like OAuth's Authorization Code grant. When running graphically, `webbrowser.open()` does not block. But when run in text mode, `webbrowser.open()` blocks until the opened browser is closed, which leads to a deadlock when httpx-auth cannot serve the auth response pages to the webbrowser. To work around this, you can specify a `BROWSER` environment variable that contains a `%s` and ends with a `&`, and the `webbrowser` module will open the text-mode browser in a subprocess and allow httpx-auth to serve the auth response pages to the browser without deadlocking.
+This project uses [`webbrowser.open()`][4] to open a web browser to support authentication flows like OAuth's Authorization Code grant. When running graphically, `webbrowser.open()` does not block. But when run in text mode, `webbrowser.open()` blocks until the opened browser is closed, which leads to a deadlock when httpx2-auth cannot serve the auth response pages to the webbrowser. To work around this, you can specify a `BROWSER` environment variable that contains a `%s` and ends with a `&`, and the `webbrowser` module will open the text-mode browser in a subprocess and allow httpx2-auth to serve the auth response pages to the browser without deadlocking.
 
 ```bash
 BROWSER="/usr/bin/links %s &"
@@ -744,31 +811,37 @@ For more information, please see the implementation of [`webbrowser.get()`][5].
 
 Amazon Web Service Signature version 4 is implemented following [Amazon S3 documentation](https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-auth-using-authorization-header.html) and [request-aws4auth 1.2.3](https://github.com/sam-washington/requests-aws4auth) (with some changes, see below).
 
-Use `httpx_auth.AWS4Auth` to configure this kind of authentication.
+Use `httpx2_auth.AWS4Auth` to configure this kind of authentication.
 
 ```python
-import httpx
-from httpx_auth import AWS4Auth
+import httpx2
+from httpx2_auth import AWS4Auth
 
-aws = AWS4Auth(access_id="my-access-id", secret_key="my-secret-key", region="eu-west-1", service="s3")
-with httpx.Client() as client:
-    client.get('http://s3-eu-west-1.amazonaws.com', auth=aws)
+aws = AWS4Auth(
+    access_id="my-access-id",
+    secret_key="my-secret-key",
+    region="eu-west-1",
+    service="s3",
+)
+with httpx2.Client() as client:
+    client.get("http://s3-eu-west-1.amazonaws.com", auth=aws)
 ```
 
 Note that the following changes were made compared to `requests-aws4auth`:
-  - Each request now has its own signing key and `x-amz-date`. Meaning **you can use the same auth instance for more than one request**.
-  - `session_token` was renamed into `security_token` for consistency with the underlying name at Amazon.
-  - `include_hdrs` parameter was renamed into `include_headers`. When using this parameter:
-    - Provided values will not be stripped, [WYSIWYG](https://en.wikipedia.org/wiki/WYSIWYG).
-    - If multiple values are provided for a same header, the computation will be based on the value order you provided and value separated by `, `. Instead of ordered values separated by comma for `requests-aws4auth`.
-  - `amz_date` attribute has been removed.
-  - It is not possible to provide a `date`. It will default to now.
-  - It is not possible to provide an `AWSSigningKey` instance, use explicit parameters instead.
-  - It is not possible to provide `raise_invalid_date` parameter anymore as the date will always be valid.
-  - `host` is not considered as a specific Amazon service anymore (no test specific code).
-  - Canonical query string computation is entirely based on AWS documentation (and consider undocumented fragment (`#` and following characters) as part of the query string).
-  - Canonical uri computation is entirely based on AWS documentation.
-  - Canonical headers computation is entirely based on AWS documentation.
+
+- Each request now has its own signing key and `x-amz-date`. Meaning **you can use the same auth instance for more than one request**.
+- `session_token` was renamed into `security_token` for consistency with the underlying name at Amazon.
+- `include_hdrs` parameter was renamed into `include_headers`. When using this parameter:
+  - Provided values will not be stripped, [WYSIWYG](https://en.wikipedia.org/wiki/WYSIWYG).
+  - If multiple values are provided for a same header, the computation will be based on the value order you provided and value separated by `,`. Instead of ordered values separated by comma for `requests-aws4auth`.
+- `amz_date` attribute has been removed.
+- It is not possible to provide a `date`. It will default to now.
+- It is not possible to provide an `AWSSigningKey` instance, use explicit parameters instead.
+- It is not possible to provide `raise_invalid_date` parameter anymore as the date will always be valid.
+- `host` is not considered as a specific Amazon service anymore (no test specific code).
+- Canonical query string computation is entirely based on AWS documentation (and consider undocumented fragment (`#` and following characters) as part of the query string).
+- Canonical uri computation is entirely based on AWS documentation.
+- Canonical headers computation is entirely based on AWS documentation.
 
 ### Parameters
 
@@ -783,17 +856,25 @@ Note that the following changes were made compared to `requests-aws4auth`:
 
 ### Dynamically retrieving credentials using boto3
 
-While `httpx-auth` does not want to include support for `botocore`, the following authentication class should allow you to automatically retrieve up-to-date credentials.
+While `httpx2-auth` does not want to include support for `botocore`, the following authentication class should allow you to automatically retrieve up-to-date credentials.
 
 ```python
-import httpx
+import httpx2
 from botocore.session import Session
-from httpx_auth import AWS4Auth
+from httpx2_auth import AWS4Auth
+
 
 class AWS4BotoAuth(AWS4Auth):
     def __init__(self, region: str, service: str = "s3", **kwargs):
         self.refreshable_credentials = Session().get_credentials()
-        AWS4Auth.__init__(self, access_id=kwargs.pop("access_id", "_"), secret_key=kwargs.pop("secret_key", "_"), region=region, service=service, **kwargs)
+        AWS4Auth.__init__(
+            self,
+            access_id=kwargs.pop("access_id", "_"),
+            secret_key=kwargs.pop("secret_key", "_"),
+            region=region,
+            service=service,
+            **kwargs
+        )
 
     def auth_flow(self, request):
         self.refresh_credentials()
@@ -807,20 +888,20 @@ class AWS4BotoAuth(AWS4Auth):
 
 
 aws = AWS4BotoAuth(region="eu-west-1")
-with httpx.Client() as client:
-    client.get('http://s3-eu-west-1.amazonaws.com', auth=aws)
+with httpx2.Client() as client:
+    client.get("http://s3-eu-west-1.amazonaws.com", auth=aws)
 ```
 
 ## API key in header
 
-You can send an API key inside the header of your request using `httpx_auth.HeaderApiKey`.
+You can send an API key inside the header of your request using `httpx2_auth.HeaderApiKey`.
 
 ```python
-import httpx
-from httpx_auth import HeaderApiKey
+import httpx2
+from httpx2_auth import HeaderApiKey
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=HeaderApiKey('my_api_key'))
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=HeaderApiKey("my_api_key"))
 ```
 
 ### Parameters
@@ -832,14 +913,14 @@ with httpx.Client() as client:
 
 ## API key in query
 
-You can send an API key inside the query parameters of your request using `httpx_auth.QueryApiKey`.
+You can send an API key inside the query parameters of your request using `httpx2_auth.QueryApiKey`.
 
 ```python
-import httpx
-from httpx_auth import QueryApiKey
+import httpx2
+from httpx2_auth import QueryApiKey
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=QueryApiKey('my_api_key'))
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=QueryApiKey("my_api_key"))
 ```
 
 ### Parameters
@@ -851,16 +932,16 @@ with httpx.Client() as client:
 
 ## Basic
 
-You can use basic authentication using `httpx_auth.Basic`.
+You can use basic authentication using `httpx2_auth.Basic`.
 
-The only advantage of using this class instead of `httpx` native support of basic authentication, is to be able to use it in [multiple authentication](#multiple-authentication-at-once).
+The only advantage of using this class instead of `httpx2` native support of basic authentication, is to be able to use it in [multiple authentication](#multiple-authentication-at-once).
 
 ```python
-import httpx
-from httpx_auth import Basic
+import httpx2
+from httpx2_auth import Basic
 
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=Basic('username', 'password'))
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=Basic("username", "password"))
 ```
 
 ### Parameters
@@ -875,35 +956,37 @@ with httpx.Client() as client:
 You can also use a combination of authentication using `+`or `&`  as in the following sample:
 
 ```python
-import httpx
-from httpx_auth import HeaderApiKey, OAuth2Implicit
+import httpx2
+from httpx2_auth import HeaderApiKey, OAuth2Implicit
 
-api_key = HeaderApiKey('my_api_key')
-oauth2 = OAuth2Implicit('https://www.example.com')
-with httpx.Client() as client:
-    client.get('https://www.example.com', auth=api_key + oauth2)
+api_key = HeaderApiKey("my_api_key")
+oauth2 = OAuth2Implicit("https://www.example.com")
+with httpx2.Client() as client:
+    client.get("https://www.example.com", auth=api_key + oauth2)
 ```
 
-This is supported on every authentication class exposed by `httpx_auth`, but you can also enable it on your own authentication classes by using `httpx_auth.SupportMultiAuth` as in the following sample:
+This is supported on every authentication class exposed by `httpx2_auth`, but you can also enable it on your own authentication classes by using `httpx2_auth.SupportMultiAuth` as in the following sample:
 
 ```python
-from httpx_auth import SupportMultiAuth
+from httpx2_auth import SupportMultiAuth
+
 # TODO Import your own auth here
 from my_package import MyAuth
+
 
 class MyMultiAuth(MyAuth, SupportMultiAuth):
     pass
 ```
 
-
 ## Available pytest fixtures
 
-Testing the code using `httpx_auth` authentication classes can be achieved using provided [`pytest`][6] fixtures.
+Testing the code using `httpx2_auth` authentication classes can be achieved using provided [`pytest`][6] fixtures.
 
 ### token_cache_mock
 
 ```python
-from httpx_auth.testing import token_cache_mock, token_mock
+from httpx2_auth.testing import token_cache_mock, token_mock
+
 
 def test_something(token_cache_mock):
     # perform code using authentication
@@ -911,20 +994,21 @@ def test_something(token_cache_mock):
 ```
 
 Use this fixture to mock authentication success for any of the following classes:
- * `OAuth2AuthorizationCodePKCE`
- * `OktaAuthorizationCodePKCE`
- * `OAuth2Implicit`
- * `OktaImplicit`
- * `OktaImplicitIdToken`
- * `AzureActiveDirectoryImplicit`
- * `AzureActiveDirectoryImplicitIdToken`
- * `OAuth2AuthorizationCode`
- * `OktaAuthorizationCode`
- * `WakaTimeAuthorizationCode`
- * `OAuth2ClientCredentials`
- * `OktaClientCredentials`
- * `OAuth2ResourceOwnerPasswordCredentials`
- * `OktaResourceOwnerPasswordCredentials`
+
+- `OAuth2AuthorizationCodePKCE`
+- `OktaAuthorizationCodePKCE`
+- `OAuth2Implicit`
+- `OktaImplicit`
+- `OktaImplicitIdToken`
+- `AzureActiveDirectoryImplicit`
+- `AzureActiveDirectoryImplicitIdToken`
+- `OAuth2AuthorizationCode`
+- `OktaAuthorizationCode`
+- `WakaTimeAuthorizationCode`
+- `OAuth2ClientCredentials`
+- `OktaClientCredentials`
+- `OAuth2ResourceOwnerPasswordCredentials`
+- `OktaResourceOwnerPasswordCredentials`
 
 By default, an access token with value `2YotnFZFEjr1zCsicMWpAA` is generated.
 
@@ -933,7 +1017,7 @@ You can however return your custom token by providing your own `token_mock` fixt
 ```python
 import pytest
 
-from httpx_auth.testing import token_cache_mock
+from httpx2_auth.testing import token_cache_mock
 
 
 @pytest.fixture
@@ -952,7 +1036,7 @@ Note that [`pyjwt`](https://pypi.org/project/PyJWT/) is a required dependency in
 
 ```python
 import pytest
-from httpx_auth.testing import token_cache_mock, create_token
+from httpx2_auth.testing import token_cache_mock, create_token
 
 
 @pytest.fixture
@@ -973,7 +1057,8 @@ def test_something(token_cache_mock):
 This [`pytest`][6] fixture will return the token cache and ensure it is reset at the end of the test case.
 
 ```python
-from httpx_auth.testing import token_cache
+from httpx2_auth.testing import token_cache
+
 
 def test_something(token_cache):
     # perform code using authentication
@@ -991,10 +1076,13 @@ With this [`pytest`][6] fixture you will be allowed to fine tune your authentica
 ```python
 import datetime
 
-from httpx_auth.testing import browser_mock, BrowserMock, create_token
+from httpx2_auth.testing import browser_mock, BrowserMock, create_token
+
 
 def test_something(browser_mock: BrowserMock):
-    token_expiry = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
+    token_expiry = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
+        hours=1
+    )
     token = create_token(token_expiry)
     tab = browser_mock.add_response(
         opened_url="http://url_opened_by_browser?state=1234",

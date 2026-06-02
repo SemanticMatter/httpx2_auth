@@ -1,29 +1,29 @@
 """
 Provides code for AWSAuth initially ported to httpx from Sam Washington's requests-aws4auth
 https://github.com/sam-washington/requests-aws4auth
+
+Updated to use httpx2 and to be compatible with httpx2_auth multi-authentication system.
 """
 
 import datetime
 import hashlib
 import hmac
 from collections import defaultdict
+from collections.abc import Generator
 from posixpath import normpath
-from typing import Generator
 from urllib.parse import quote
 
-import httpx
+import httpx2
 
 
-class AWS4Auth(httpx.Auth):
+class AWS4Auth(httpx2.Auth):
     """
     https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-auth-using-authorization-header.html
     """
 
     requires_request_body = True
 
-    def __init__(
-        self, access_id: str, secret_key: str, region: str, service: str, **kwargs
-    ):
+    def __init__(self, access_id: str, secret_key: str, region: str, service: str, **kwargs):
         """
 
         :param access_id: AWS access ID
@@ -51,13 +51,11 @@ class AWS4Auth(httpx.Auth):
 
         self.security_token = kwargs.get("security_token")
 
-        self.include_headers = {
-            header.lower() for header in kwargs.get("include_headers", [])
-        }
+        self.include_headers = {header.lower() for header in kwargs.get("include_headers", [])}
 
     def auth_flow(
-        self, request: httpx.Request
-    ) -> Generator[httpx.Request, httpx.Response, None]:
+        self, request: httpx2.Request
+    ) -> Generator[httpx2.Request, httpx2.Response, None]:
         date = datetime.datetime.now(datetime.timezone.utc)
 
         # https://docs.aws.amazon.com/AmazonS3/latest/API/sigv4-auth-using-authorization-header.html
@@ -69,9 +67,7 @@ class AWS4Auth(httpx.Auth):
         # The x-amz-content-sha256 header is required for all AWS Signature Version 4 requests.
         # It provides a hash of the request payload.
         # If there is no payload, you must provide the hash of an empty string.
-        request.headers["x-amz-content-sha256"] = hashlib.sha256(
-            request.read()
-        ).hexdigest()
+        request.headers["x-amz-content-sha256"] = hashlib.sha256(request.read()).hexdigest()
 
         # https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
         # if you are using temporary security credentials, you need to include x-amz-security-token in your request.
@@ -82,9 +78,7 @@ class AWS4Auth(httpx.Auth):
         canonical_headers, signed_headers = canonical_and_signed_headers(
             request.headers, self.include_headers
         )
-        canonical_request = self._canonical_request(
-            request, canonical_headers, signed_headers
-        )
+        canonical_request = self._canonical_request(request, canonical_headers, signed_headers)
         scope = f"{date.strftime('%Y%m%d')}/{self.region}/{self.service}/aws4_request"
         string_to_sign = _string_to_sign(request, canonical_request, scope)
         signing_key = _signing_key(
@@ -102,7 +96,7 @@ class AWS4Auth(httpx.Auth):
         yield request
 
     def _canonical_request(
-        self, request: httpx.Request, canonical_headers: str, signed_headers: str
+        self, request: httpx2.Request, canonical_headers: str, signed_headers: str
     ) -> str:
         return "\n".join(
             [
@@ -118,7 +112,7 @@ class AWS4Auth(httpx.Auth):
 
 
 def canonical_and_signed_headers(
-    headers: httpx.Headers, include_headers: set[str]
+    headers: httpx2.Headers, include_headers: set[str]
 ) -> tuple[str, str]:
     r"""
     See https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html for more details.
@@ -133,7 +127,7 @@ def canonical_and_signed_headers(
     ...
     Lowercase(<HeaderNameN>)+":"+Trim(<value>)+"\n"
 
-    >>> canonical_and_signed_headers(httpx.Headers({"X-AMZ-Whatever": "  value with  spaces  "}), include_headers=set())
+    >>> canonical_and_signed_headers(httpx2.Headers({"X-AMZ-Whatever": "  value with  spaces  "}), include_headers=set())
     ('x-amz-whatever:value with  spaces\n', 'x-amz-whatever')
 
     The Lowercase() and Trim() functions used in this example are described in the preceding section.
@@ -167,7 +161,7 @@ def canonical_and_signed_headers(
     For example, for the previous example, the value of SignedHeaders would be as follows:
 
     host;x-amz-content-sha256;x-amz-date
-    >>> canonical_and_signed_headers(httpx.Headers({"Host": "s3.amazonaws.com", "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "x-amz-date": "20130708T220855Z"}), include_headers={"host"})
+    >>> canonical_and_signed_headers(httpx2.Headers({"Host": "s3.amazonaws.com", "x-amz-content-sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "x-amz-date": "20130708T220855Z"}), include_headers={"host"})
     ('host:s3.amazonaws.com\nx-amz-content-sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\nx-amz-date:20130708T220855Z\n', 'host;x-amz-content-sha256;x-amz-date')
     """
     include_headers.add("host")
@@ -177,7 +171,7 @@ def canonical_and_signed_headers(
         if (header or "*") in include_headers or (
             header.startswith("x-amz-")
             # x-amz-client-context break mobile analytics auth if included
-            and not header == "x-amz-client-context"
+            and header != "x-amz-client-context"
         ):
             included_headers[header] = header_value.strip()
 
@@ -190,14 +184,12 @@ def canonical_and_signed_headers(
     return canonical_headers, ";".join(signed_headers)
 
 
-def _string_to_sign(request: httpx.Request, canonical_request: str, scope: str) -> str:
+def _string_to_sign(request: httpx2.Request, canonical_request: str, scope: str) -> str:
     hsh = hashlib.sha256(canonical_request.encode())
-    return "\n".join(
-        ["AWS4-HMAC-SHA256", request.headers["x-amz-date"], scope, hsh.hexdigest()]
-    )
+    return "\n".join(["AWS4-HMAC-SHA256", request.headers["x-amz-date"], scope, hsh.hexdigest()])
 
 
-def canonical_uri(url: httpx.URL, is_s3: bool) -> str:
+def canonical_uri(url: httpx2.URL, is_s3: bool) -> str:
     """
     See https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html for more details.
 
@@ -209,7 +201,7 @@ def canonical_uri(url: httpx.URL, is_s3: bool) -> str:
     The URI in the following example, /examplebucket/myphoto.jpg, is the absolute path, and you don't encode the "/" in the absolute path:
 
     http://s3.amazonaws.com/examplebucket/myphoto.jpg
-    >>> canonical_uri(httpx.URL("http://s3.amazonaws.com/examplebucket/myphoto.jpg"), is_s3=False)
+    >>> canonical_uri(httpx2.URL("http://s3.amazonaws.com/examplebucket/myphoto.jpg"), is_s3=False)
     '/examplebucket/myphoto.jpg'
 
     Note
@@ -217,18 +209,18 @@ def canonical_uri(url: httpx.URL, is_s3: bool) -> str:
     For example, you may have a bucket with an object named "my-object//example//photo.user".
     Normalizing the path changes the object name in the request to "my-object/example/photo.user".
     This is an incorrect path for that object.
-    >>> canonical_uri(httpx.URL("http://s3.amazonaws.com/my-object//example//photo.user"), is_s3=False)
+    >>> canonical_uri(httpx2.URL("http://s3.amazonaws.com/my-object//example//photo.user"), is_s3=False)
     '/my-object/example/photo.user'
-    >>> canonical_uri(httpx.URL("http://s3.amazonaws.com/my-object//example//photo.user"), is_s3=True)
+    >>> canonical_uri(httpx2.URL("http://s3.amazonaws.com/my-object//example//photo.user"), is_s3=True)
     '/my-object//example//photo.user'
 
     Some limitation that should be covered but not documented by AWS:
     - Trailing / should be kept
-    >>> canonical_uri(httpx.URL("http://s3.amazonaws.com/resource/"), is_s3=False)
+    >>> canonical_uri(httpx2.URL("http://s3.amazonaws.com/resource/"), is_s3=False)
     '/resource/'
 
     - Starting with // should be normalized
-    >>> canonical_uri(httpx.URL("http://s3.amazonaws.com//resource/"), is_s3=False)
+    >>> canonical_uri(httpx2.URL("http://s3.amazonaws.com//resource/"), is_s3=False)
     '/resource/'
     """
     resource = url.path
@@ -244,7 +236,7 @@ def canonical_uri(url: httpx.URL, is_s3: bool) -> str:
     return uri_encode(resource, is_key=True)
 
 
-def canonical_query_string(url: httpx.URL) -> str:
+def canonical_query_string(url: httpx2.URL) -> str:
     """
     See https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html for more details.
 
@@ -261,7 +253,7 @@ def canonical_query_string(url: httpx.URL) -> str:
     UriEncode("marker")+"="+UriEncode("someMarker")+"&"+
     UriEncode("max-keys")+"="+UriEncode("20") + "&" +
     UriEncode("prefix")+"="+UriEncode("somePrefix")
-    >>> canonical_query_string(httpx.URL("http://s3.amazonaws.com/examplebucket?prefix=somePrefix&marker=someMarker&max-keys=20"))
+    >>> canonical_query_string(httpx2.URL("http://s3.amazonaws.com/examplebucket?prefix=somePrefix&marker=someMarker&max-keys=20"))
     'marker=someMarker&max-keys=20&prefix=somePrefix'
 
     When a request targets a subresource, the corresponding query parameter value will be an empty string ("").
@@ -272,11 +264,11 @@ def canonical_query_string(url: httpx.URL) -> str:
 
     The CanonicalQueryString in this case is as follows:
     UriEncode("acl") + "=" + ""
-    >>> canonical_query_string(httpx.URL("http://s3.amazonaws.com/examplebucket?acl"))
+    >>> canonical_query_string(httpx2.URL("http://s3.amazonaws.com/examplebucket?acl"))
     'acl='
 
     If the URI does not include a '?', there is no query string in the request, and you set the canonical query string to an empty string ("").
-    >>> canonical_query_string(httpx.URL("http://s3.amazonaws.com/examplebucket"))
+    >>> canonical_query_string(httpx2.URL("http://s3.amazonaws.com/examplebucket"))
     ''
 
     You will still need to include the "\n".
@@ -284,18 +276,18 @@ def canonical_query_string(url: httpx.URL) -> str:
     Undocumented:
 
     As URL fragment are not mentionned in AWS documentation, it is assumed they don't treat it as what it is and part of the query string instead
-    >>> canonical_query_string(httpx.URL("http://s3.amazonaws.com/examplebucket?#this_will_be_a_parameter=and_its_value"))
+    >>> canonical_query_string(httpx2.URL("http://s3.amazonaws.com/examplebucket?#this_will_be_a_parameter=and_its_value"))
     '%23this_will_be_a_parameter=and_its_value'
 
-    >>> canonical_query_string(httpx.URL("http://s3.amazonaws.com/examplebucket?#first=1#invalue"))
+    >>> canonical_query_string(httpx2.URL("http://s3.amazonaws.com/examplebucket?#first=1#invalue"))
     '%23first=1%23invalue'
 
-    >>> canonical_query_string(httpx.URL("http://s3.amazonaws.com/examplebucket?first#=1&#second=invalue&#"))
+    >>> canonical_query_string(httpx2.URL("http://s3.amazonaws.com/examplebucket?first#=1&#second=invalue&#"))
     '%23second=invalue&first%23=1'
     """
     if fragment := url.fragment:
         url_without_fragment = url.copy_with(fragment=None)
-        return canonical_query_string(httpx.URL(f"{url_without_fragment}%23{fragment}"))
+        return canonical_query_string(httpx2.URL(f"{url_without_fragment}%23{fragment}"))
 
     encoded_params = defaultdict(list)
     for name, value in url.params.multi_items():
@@ -310,7 +302,7 @@ def canonical_query_string(url: httpx.URL) -> str:
 
 
 def _signing_key(secret_key: str, region: str, service: str, date: str) -> bytes:
-    init_key = f"AWS4{secret_key}".encode("utf-8")
+    init_key = f"AWS4{secret_key}".encode()
     date_key = sign_sha256(init_key, date)
     region_key = sign_sha256(date_key, region)
     service_key = sign_sha256(region_key, service)
@@ -322,7 +314,7 @@ def sign_sha256(signing_key: bytes, message: str) -> bytes:
 
 
 def uri_encode(value: str, is_key: bool = False) -> str:
-    """
+    r"""
     See https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html for more details.
 
     URI encode every byte. UriEncode() must enforce the following rules:

@@ -1,37 +1,35 @@
-import webbrowser
 import logging
-from http.server import HTTPServer, BaseHTTPRequestHandler
+import webbrowser
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from urllib.parse import parse_qs, urlparse
-from socket import socket
 
-import httpx
+import httpx2
 
-from httpx_auth._errors import (
-    InvalidGrantRequest,
+from httpx2_auth._errors import (
     GrantNotProvided,
+    InvalidGrantRequest,
     StateNotProvided,
     TimeoutOccurred,
 )
-from httpx_auth._oauth2.common import OAuth2
+from httpx2_auth._oauth2.common import OAuth2
 
 logger = logging.getLogger(__name__)
 
 
 class OAuth2ResponseHandler(BaseHTTPRequestHandler):
+    # The server is always a FixedHttpServer (set when the server instantiates the handler).
+    server: "FixedHttpServer"
+
     def do_GET(self) -> None:
         # Do not consider a favicon request as an error
         if self.path == "/favicon.ico":
-            logger.debug(
-                "Favicon request received on OAuth2 authentication response server."
-            )
+            logger.debug("Favicon request received on OAuth2 authentication response server.")
             return self.send_html("Favicon is not provided.")
 
-        logger.debug(f"GET received on {self.path}")
+        logger.debug("GET received on %s", self.path)
         try:
             args = self._get_params()
-            if self.server.grant_details.name in args or args.pop(
-                "httpx_auth_redirect", None
-            ):
+            if self.server.grant_details.name in args or args.pop("httpx2_auth_redirect", None):
                 self._parse_grant(args)
             else:
                 logger.debug("Send anchor grant as query parameter.")
@@ -47,7 +45,7 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
             )
 
     def do_POST(self) -> None:
-        logger.debug(f"POST received on {self.path}")
+        logger.debug("POST received on %s", self.path)
         try:
             form_dict = self._get_form()
             self._parse_grant(form_dict)
@@ -72,19 +70,17 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
             if "error" in arguments:
                 raise InvalidGrantRequest(arguments)
             raise GrantNotProvided(self.server.grant_details.name, arguments)
-        logger.debug(f"Received grants: {grants}")
+        logger.debug("Received grants: %s", grants)
         grant = grants[0]
 
         states = arguments.get("state")
         if not states or len(states) > 1:
             raise StateNotProvided(arguments)
-        logger.debug(f"Received states: {states}")
+        logger.debug("Received states: %s", states)
         state = states[0]
         self.server.grant = state, grant
         self.send_html(
-            OAuth2.display.success_html.format(
-                display_time=OAuth2.display.success_display_time
-            )
+            OAuth2.display.success_html.format(display_time=OAuth2.display.success_display_time)
         )
 
     def _get_form(self) -> dict:
@@ -114,9 +110,9 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
         return """<html><body><script>
         var new_url = window.location.href.replace("#","?");
         if (new_url.indexOf("?") !== -1) {
-            new_url += "&httpx_auth_redirect=1";
+            new_url += "&httpx2_auth_redirect=1";
         } else {
-            new_url += "?httpx_auth_redirect=1";
+            new_url += "?httpx2_auth_redirect=1";
         }
         window.location.replace(new_url)
         </script></body></html>"""
@@ -142,16 +138,14 @@ class GrantDetails:
 
 class FixedHttpServer(HTTPServer):
     def __init__(self, grant_details: GrantDetails):
-        HTTPServer.__init__(
-            self, ("", grant_details.redirect_uri_port), OAuth2ResponseHandler
-        )
+        HTTPServer.__init__(self, ("", grant_details.redirect_uri_port), OAuth2ResponseHandler)
         self.timeout = grant_details.reception_timeout
-        logger.debug(f"Timeout is set to {self.timeout} seconds.")
+        logger.debug("Timeout is set to %s seconds.", self.timeout)
         self.grant_details = grant_details
-        self.request_error = None
-        self.grant = False
+        self.request_error: Exception | None = None
+        self.grant: tuple[str, str] | None = None
 
-    def finish_request(self, request: socket, client_address) -> None:
+    def finish_request(self, request, client_address) -> None:
         """Make sure that timeout is used by the request (seems like a bug in HTTPServer)."""
         request.settimeout(self.timeout)
         HTTPServer.finish_request(self, request, client_address)
@@ -163,7 +157,7 @@ class FixedHttpServer(HTTPServer):
         return not self.grant
 
     def handle_timeout(self) -> None:
-        raise TimeoutOccurred(self.timeout)
+        raise TimeoutOccurred(self.grant_details.reception_timeout)
 
 
 def request_new_grant(grant_details: GrantDetails) -> tuple[str, str]:
@@ -175,7 +169,7 @@ def request_new_grant(grant_details: GrantDetails) -> tuple[str, str]:
     :raises GrantNotProvided: If grant is not provided in response (but no error occurred).
     :raises StateNotProvided: If state is not provided in addition to the grant.
     """
-    logger.debug(f"Requesting new {grant_details.name}...")
+    logger.debug("Requesting new %s...", grant_details.name)
 
     with FixedHttpServer(grant_details) as server:
         _open_url(grant_details.url)
@@ -192,16 +186,16 @@ def _open_url(url: str) -> None:
             if hasattr(webbrowser, "iexplore")
             else webbrowser.get()
         )
-        logger.debug(f"Opening browser on {url}")
+        logger.debug("Opening browser on %s", url)
         if not browser.open(url, new=1):
             logger.warning("Unable to open URL, try with a GET request.")
-            httpx.get(url)
+            httpx2.get(url)
     except webbrowser.Error:
         logger.exception("Unable to open URL, try with a GET request.")
-        httpx.get(url)
+        httpx2.get(url)
 
 
-def _wait_for_grant(server: FixedHttpServer) -> (str, str):
+def _wait_for_grant(server: FixedHttpServer) -> tuple[str, str]:
     """
     :return: A tuple (state, grant)
     :raises InvalidGrantRequest: If the request was invalid.
@@ -210,7 +204,7 @@ def _wait_for_grant(server: FixedHttpServer) -> (str, str):
     :raises StateNotProvided: If state is not provided in addition to the grant.
     """
     logger.debug("Waiting for user authentication...")
-    while not server.grant:
+    while server.grant is None:
         server.handle_request()
         server.ensure_no_error_occurred()
     return server.grant

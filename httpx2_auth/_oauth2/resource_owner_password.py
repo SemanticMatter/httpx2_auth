@@ -1,11 +1,12 @@
 from hashlib import sha512
 
-import httpx
-from httpx_auth._authentication import SupportMultiAuth
-from httpx_auth._oauth2.common import (
+import httpx2
+
+from httpx2_auth._authentication import SupportMultiAuth
+from httpx2_auth._oauth2.common import (
     OAuth2BaseAuth,
-    request_new_grant_with_post,
     _add_parameters,
+    request_new_grant_with_post,
 )
 
 
@@ -24,7 +25,7 @@ class OAuth2ResourceOwnerPasswordCredentials(OAuth2BaseAuth, SupportMultiAuth):
         :param password: Resource owner password.
         :param client_auth: Client authentication if the client type is confidential
         or the client was issued client credentials (or assigned other authentication requirements).
-        Can be a tuple or any httpx authentication class instance.
+        Can be a tuple or any httpx2 authentication class instance.
         :param timeout: Maximum amount of seconds to wait for a token to be received once requested.
         Wait for 1 minute by default.
         :param header_name: Name of the header field used to send token.
@@ -37,7 +38,7 @@ class OAuth2ResourceOwnerPasswordCredentials(OAuth2BaseAuth, SupportMultiAuth):
         :param early_expiry: Number of seconds before actual token expiry where token will be considered as expired.
         Default to 30 seconds to ensure token will not expire between the time of retrieval and the time the request
         reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as body parameters in the token URL.
         """
@@ -93,7 +94,7 @@ class OAuth2ResourceOwnerPasswordCredentials(OAuth2BaseAuth, SupportMultiAuth):
         )
 
     def request_new_token(self) -> tuple:
-        client = self.client or httpx.Client()
+        client = self.client or httpx2.Client()
         self._configure_client(client)
         try:
             # As described in https://tools.ietf.org/html/rfc6749#section-4.3.3
@@ -105,14 +106,10 @@ class OAuth2ResourceOwnerPasswordCredentials(OAuth2BaseAuth, SupportMultiAuth):
             if self.client is None:
                 client.close()
         # Handle both Access and Bearer tokens
-        return (
-            (self.state, token, expires_in, refresh_token)
-            if expires_in
-            else (self.state, token)
-        )
+        return (self.state, token, expires_in, refresh_token) if expires_in else (self.state, token)
 
     def refresh_token(self, refresh_token: str) -> tuple:
-        client = self.client or httpx.Client()
+        client = self.client or httpx2.Client()
         self._configure_client(client)
         try:
             # As described in https://tools.ietf.org/html/rfc6749#section-6
@@ -129,7 +126,7 @@ class OAuth2ResourceOwnerPasswordCredentials(OAuth2BaseAuth, SupportMultiAuth):
                 client.close()
         return self.state, token, expires_in, refresh_token
 
-    def _configure_client(self, client: httpx.Client):
+    def _configure_client(self, client: httpx2.Client):
         if self.client_auth:
             client.auth = self.client_auth
         client.timeout = self.timeout
@@ -170,7 +167,7 @@ class OktaResourceOwnerPasswordCredentials(OAuth2ResourceOwnerPasswordCredential
         :param early_expiry: Number of seconds before actual token expiry where token will be considered as expired.
         Default to 30 seconds to ensure token will not expire between the time of retrieval and the time the request
         reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as body parameters in the token URL.
         """

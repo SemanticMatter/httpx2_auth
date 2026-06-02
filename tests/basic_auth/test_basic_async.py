@@ -1,13 +1,13 @@
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
-import httpx_auth
+import httpx2_auth
 
 
 @pytest.mark.asyncio
 async def test_basic_authentication_send_authorization_header(httpx_mock: HTTPXMock):
-    auth = httpx_auth.Basic("test_user", "test_pwd")
+    auth = httpx2_auth.Basic("test_user", "test_pwd")
 
     httpx_mock.add_response(
         url="https://authorized_only",
@@ -17,5 +17,5 @@ async def test_basic_authentication_send_authorization_header(httpx_mock: HTTPXM
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
