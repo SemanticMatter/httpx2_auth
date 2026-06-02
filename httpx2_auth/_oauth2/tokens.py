@@ -1,18 +1,17 @@
 import base64
-import json
-import os
 import datetime
-import threading
+import json
 import logging
+import os
+import threading
 from pathlib import Path
-from typing import Union, Optional
 
 from httpx2_auth._errors import (
+    AuthenticationFailed,
+    GrantNotProvided,
+    InvalidGrantRequest,
     InvalidToken,
     TokenExpiryNotProvided,
-    AuthenticationFailed,
-    InvalidGrantRequest,
-    GrantNotProvided,
 )
 
 logger = logging.getLogger(__name__)
@@ -37,7 +36,7 @@ def is_expired(expiry: float, early_expiry: float) -> bool:
     ) < datetime.datetime.now(datetime.timezone.utc)
 
 
-def to_expiry(expires_in: Union[int, str]) -> float:
+def to_expiry(expires_in: int | str) -> float:
     expiry = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(
         seconds=int(expires_in)
     )
@@ -77,8 +76,8 @@ class TokenMemoryCache:
         self,
         key: str,
         token: str,
-        expires_in: Union[int, str],
-        refresh_token: Optional[str] = None,
+        expires_in: int | str,
+        refresh_token: str | None = None,
     ) -> None:
         """
         Set the bearer token and save it
@@ -90,7 +89,7 @@ class TokenMemoryCache:
         self._add_token(key, token, to_expiry(expires_in), refresh_token)
 
     def _add_token(
-        self, key: str, token: str, expiry: float, refresh_token: Optional[str] = None
+        self, key: str, token: str, expiry: float, refresh_token: str | None = None
     ) -> None:
         """
         Set the bearer token and save it
@@ -151,9 +150,7 @@ class TokenMemoryCache:
         if refresh_token is not None and on_expired_token is not None:
             try:
                 with self._forbid_concurrent_missing_token_function_call:
-                    state, token, expires_in, refresh_token = on_expired_token(
-                        refresh_token
-                    )
+                    state, token, expires_in, refresh_token = on_expired_token(refresh_token)
                     self._add_access_token(state, token, expires_in, refresh_token)
                     logger.debug(f"Refreshed token with key {key}.")
                 with self._forbid_concurrent_cache_access:
@@ -219,7 +216,7 @@ class JsonTokenFileCache(TokenMemoryCache):
     Class to manage tokens using a cache file.
     """
 
-    def __init__(self, tokens_path: Union[str, Path]):
+    def __init__(self, tokens_path: str | Path):
         TokenMemoryCache.__init__(self)
         self._tokens_path = Path(tokens_path)
         self._last_save_time = 0

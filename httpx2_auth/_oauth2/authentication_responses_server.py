@@ -1,14 +1,14 @@
-import webbrowser
 import logging
-from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import parse_qs, urlparse
+import webbrowser
+from http.server import BaseHTTPRequestHandler, HTTPServer
 from socket import socket
+from urllib.parse import parse_qs, urlparse
 
 import httpx2
 
 from httpx2_auth._errors import (
-    InvalidGrantRequest,
     GrantNotProvided,
+    InvalidGrantRequest,
     StateNotProvided,
     TimeoutOccurred,
 )
@@ -21,17 +21,13 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         # Do not consider a favicon request as an error
         if self.path == "/favicon.ico":
-            logger.debug(
-                "Favicon request received on OAuth2 authentication response server."
-            )
+            logger.debug("Favicon request received on OAuth2 authentication response server.")
             return self.send_html("Favicon is not provided.")
 
         logger.debug(f"GET received on {self.path}")
         try:
             args = self._get_params()
-            if self.server.grant_details.name in args or args.pop(
-                "httpx2_auth_redirect", None
-            ):
+            if self.server.grant_details.name in args or args.pop("httpx2_auth_redirect", None):
                 self._parse_grant(args)
             else:
                 logger.debug("Send anchor grant as query parameter.")
@@ -82,9 +78,7 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
         state = states[0]
         self.server.grant = state, grant
         self.send_html(
-            OAuth2.display.success_html.format(
-                display_time=OAuth2.display.success_display_time
-            )
+            OAuth2.display.success_html.format(display_time=OAuth2.display.success_display_time)
         )
 
     def _get_form(self) -> dict:
@@ -142,9 +136,7 @@ class GrantDetails:
 
 class FixedHttpServer(HTTPServer):
     def __init__(self, grant_details: GrantDetails):
-        HTTPServer.__init__(
-            self, ("", grant_details.redirect_uri_port), OAuth2ResponseHandler
-        )
+        HTTPServer.__init__(self, ("", grant_details.redirect_uri_port), OAuth2ResponseHandler)
         self.timeout = grant_details.reception_timeout
         logger.debug(f"Timeout is set to {self.timeout} seconds.")
         self.grant_details = grant_details

@@ -2,7 +2,6 @@ import httpx
 from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import token_cache_mock, token_mock
 
 
 def test_token_mock(token_cache_mock, httpx_mock: HTTPXMock):

@@ -1,6 +1,6 @@
 import abc
-from typing import Callable, Generator, Optional, Union
-from urllib.parse import parse_qs, urlsplit, urlunsplit, urlencode
+from collections.abc import Callable, Generator
+from urllib.parse import parse_qs, urlencode, urlsplit, urlunsplit
 
 import httpx2
 
@@ -31,7 +31,7 @@ def _add_parameters(initial_url: str, extra_parameters: dict) -> str:
     return urlunsplit((scheme, netloc, path, new_query_string, fragment))
 
 
-def _pop_parameter(url: str, query_parameter_name: str) -> (str, Optional[str]):
+def _pop_parameter(url: str, query_parameter_name: str) -> (str, str | None):
     """
     Remove and return parameter of an URL.
 
@@ -50,7 +50,7 @@ def _pop_parameter(url: str, query_parameter_name: str) -> (str, Optional[str]):
     )
 
 
-def _get_query_parameter(url: str, param_name: str) -> Optional[str]:
+def _get_query_parameter(url: str, param_name: str) -> str | None:
     scheme, netloc, path, query_string, fragment = urlsplit(url)
     query_params = parse_qs(query_string)
     all_values = query_params.get(param_name)
@@ -96,7 +96,7 @@ class OAuth2BaseAuth(abc.ABC, httpx2.Auth):
         early_expiry: float,
         header_name: str,
         header_value: str,
-        refresh_token: Optional[Callable] = None,
+        refresh_token: Callable | None = None,
     ) -> None:
         if "{token}" not in header_value:
             raise Exception("header_value parameter must contains {token}.")
@@ -120,7 +120,7 @@ class OAuth2BaseAuth(abc.ABC, httpx2.Auth):
         yield request
 
     @abc.abstractmethod
-    def request_new_token(self) -> Union[tuple[str, str], tuple[str, str, int]]:
+    def request_new_token(self) -> tuple[str, str] | tuple[str, str, int]:
         pass  # pragma: no cover
 
     def _update_user_request(self, request: httpx2.Request, token: str) -> None:

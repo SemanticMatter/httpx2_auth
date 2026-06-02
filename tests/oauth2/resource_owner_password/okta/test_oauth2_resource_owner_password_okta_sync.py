@@ -1,17 +1,14 @@
 import time
 
-from pytest_httpx import HTTPXMock
-import pytest
 import httpx
+import pytest
+from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import token_cache
 from httpx2_auth._oauth2.tokens import to_expiry
 
 
-def test_oauth2_password_credentials_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_oauth2_password_credentials_flow_uses_provided_client(token_cache, httpx_mock: HTTPXMock):
     client = httpx.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -262,9 +259,7 @@ def test_oauth2_password_credentials_flow_token_is_expired_after_30_seconds_by_d
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_password_credentials_flow_token_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_oauth2_password_credentials_flow_token_custom_expiry(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -291,9 +286,7 @@ def test_oauth2_password_credentials_flow_token_custom_expiry(
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_password_credentials_flow_refresh_token(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -355,9 +348,7 @@ def test_oauth2_password_credentials_flow_refresh_token(
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_password_credentials_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_oauth2_password_credentials_flow_refresh_token_invalid(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -599,9 +590,7 @@ def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPXMock):
             client.get("https://authorized_only", auth=auth)
 
 
-def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_with_invalid_grant_request_invalid_request_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -680,7 +669,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url"
     )
 
 
@@ -712,7 +701,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {{'other': 'other info'}}"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {'other': 'other info'}"
     )
 
 
@@ -738,9 +727,7 @@ def test_with_invalid_grant_request_without_error(token_cache, httpx_mock: HTTPX
     assert str(exception_info.value) == "{'other': 'other info'}"
 
 
-def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -772,9 +759,7 @@ def test_with_invalid_grant_request_invalid_client_error(
     )
 
 
-def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -802,9 +787,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
     )
 
 
-def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_with_invalid_grant_request_unauthorized_client_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -858,9 +841,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
     )
 
 
-def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",

@@ -1,9 +1,9 @@
 import time
 
+import httpx
 import pytest
 import time_machine
 from pytest_httpx import HTTPXMock
-import httpx
 
 import httpx2_auth
 
@@ -142,9 +142,7 @@ def test_aws_auth_includes_custom_x_amz_headers(
     )
 
     with httpx.Client() as client:
-        client.post(
-            "https://authorized_only", headers={"X-AmZ-CustoM": "Custom"}, auth=auth
-        )
+        client.post("https://authorized_only", headers={"X-AmZ-CustoM": "Custom"}, auth=auth)
 
 
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
@@ -379,9 +377,7 @@ def test_aws_auth_header_performances_without_spaces_in_value(
     ],
 )
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
-def test_aws_auth_headers_encoded_values(
-    httpx_mock: HTTPXMock, decoded_value: str, signature: str
-):
+def test_aws_auth_headers_encoded_values(httpx_mock: HTTPXMock, decoded_value: str, signature: str):
     auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",

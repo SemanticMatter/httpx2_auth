@@ -1,5 +1,5 @@
+from collections.abc import Iterable
 from hashlib import sha512
-from typing import Iterable, Union
 
 import httpx2
 
@@ -7,11 +7,11 @@ from httpx2_auth._authentication import SupportMultiAuth
 from httpx2_auth._oauth2 import authentication_responses_server
 from httpx2_auth._oauth2.browser import BrowserAuth
 from httpx2_auth._oauth2.common import (
-    request_new_grant_with_post,
     OAuth2BaseAuth,
     _add_parameters,
-    _pop_parameter,
     _get_query_parameter,
+    _pop_parameter,
+    request_new_grant_with_post,
 )
 
 
@@ -91,24 +91,18 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
             # As described in https://tools.ietf.org/html/rfc6749#section-4.1.1
             kwargs.setdefault("response_type", "code")
 
-        authorization_url_without_nonce = _add_parameters(
-            self.authorization_url, kwargs
-        )
+        authorization_url_without_nonce = _add_parameters(self.authorization_url, kwargs)
         authorization_url_without_nonce, nonce = _pop_parameter(
             authorization_url_without_nonce, "nonce"
         )
-        state = sha512(
-            authorization_url_without_nonce.encode("unicode_escape")
-        ).hexdigest()
+        state = sha512(authorization_url_without_nonce.encode("unicode_escape")).hexdigest()
         custom_code_parameters = {
             "state": state,
             "redirect_uri": self.redirect_uri,
         }
         if nonce:
             custom_code_parameters["nonce"] = nonce
-        code_grant_url = _add_parameters(
-            authorization_url_without_nonce, custom_code_parameters
-        )
+        code_grant_url = _add_parameters(authorization_url_without_nonce, custom_code_parameters)
         self.code_grant_details = authentication_responses_server.GrantDetails(
             code_grant_url,
             code_field_name,
@@ -138,9 +132,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
 
     def request_new_token(self) -> tuple:
         # Request code
-        state, code = authentication_responses_server.request_new_grant(
-            self.code_grant_details
-        )
+        state, code = authentication_responses_server.request_new_grant(self.code_grant_details)
 
         # As described in https://tools.ietf.org/html/rfc6749#section-4.1.3
         self.token_data["code"] = code
@@ -157,11 +149,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
             if self.client is None:
                 client.close()
         # Handle both Access and Bearer tokens
-        return (
-            (self.state, token, expires_in, refresh_token)
-            if expires_in
-            else (self.state, token)
-        )
+        return (self.state, token, expires_in, refresh_token) if expires_in else (self.state, token)
 
     def refresh_token(self, refresh_token: str) -> tuple:
         client = self.client or httpx2.Client()
@@ -248,7 +236,7 @@ class WakaTimeAuthorizationCode(OAuth2AuthorizationCode):
         self,
         client_id: str,
         client_secret: str,
-        scope: Union[str, Iterable[str]],
+        scope: str | Iterable[str],
         **kwargs,
     ):
         """

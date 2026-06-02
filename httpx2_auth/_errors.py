@@ -1,5 +1,4 @@
 from json import JSONDecodeError
-from typing import Union
 
 import httpx2
 
@@ -66,11 +65,11 @@ class InvalidGrantRequest(HttpxAuthException):
         "temporarily_unavailable": "The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.  (This error code is needed because a 503 Service Unavailable HTTP status code cannot be returned to the client via an HTTP redirect.)",
     }
 
-    def __init__(self, response: Union[httpx2.Response, dict]):
+    def __init__(self, response: httpx2.Response | dict):
         HttpxAuthException.__init__(self, InvalidGrantRequest.to_message(response))
 
     @staticmethod
-    def to_message(response: Union[httpx2.Response, dict]) -> str:
+    def to_message(response: httpx2.Response | dict) -> str:
         """
         Handle response as described in:
             * https://tools.ietf.org/html/rfc6749#section-5.2
@@ -121,15 +120,11 @@ class StateNotProvided(HttpxAuthException):
     """State was not provided."""
 
     def __init__(self, dictionary_without_state: dict):
-        HttpxAuthException.__init__(
-            self, f"state not provided within {dictionary_without_state}."
-        )
+        HttpxAuthException.__init__(self, f"state not provided within {dictionary_without_state}.")
 
 
 class TokenExpiryNotProvided(HttpxAuthException):
     """Token expiry was not provided."""
 
     def __init__(self, token_body: dict):
-        HttpxAuthException.__init__(
-            self, f"Expiry (exp) is not provided in {token_body}."
-        )
+        HttpxAuthException.__init__(self, f"Expiry (exp) is not provided in {token_body}.")

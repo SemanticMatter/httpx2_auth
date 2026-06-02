@@ -3,8 +3,8 @@ import logging
 import pathlib
 
 import httpx
-import pytest
 import jwt
+import pytest
 
 import httpx2_auth
 import httpx2_auth._oauth2.tokens
@@ -18,15 +18,11 @@ def token_cache(tmp_path):
 
 
 def test_add_bearer_tokens(token_cache):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache._add_bearer_token("key1", token1)
 
-    expiry_in_2_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=2)
+    expiry_in_2_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=2)
     token2 = jwt.encode({"exp": expiry_in_2_hour}, "secret")
     token_cache._add_bearer_token("key2", token2)
 
@@ -40,15 +36,11 @@ def test_add_bearer_tokens(token_cache):
 
 
 def test_save_bearer_tokens(token_cache, tmp_path):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache._add_bearer_token("key1", token1)
 
-    expiry_in_2_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=2)
+    expiry_in_2_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=2)
     token2 = jwt.encode({"exp": expiry_in_2_hour}, "secret")
     token_cache._add_bearer_token("key2", token2)
 
@@ -57,17 +49,13 @@ def test_save_bearer_tokens(token_cache, tmp_path):
     assert same_cache.get_token("key2") == token2
 
 
-def test_save_bearer_token_exception_handling(
-    token_cache, tmp_path, monkeypatch, caplog
-):
+def test_save_bearer_token_exception_handling(token_cache, tmp_path, monkeypatch, caplog):
     def failing_dump(*args):
         raise Exception("Failure")
 
     monkeypatch.setattr(httpx2_auth._oauth2.tokens.json, "dump", failing_dump)
 
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
 
     caplog.set_level(logging.DEBUG)
@@ -105,9 +93,7 @@ def test_missing_token_on_empty_cache(token_cache, caplog):
 
 
 def test_missing_token_on_non_empty_cache(token_cache, caplog):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token1 = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache._add_bearer_token("key0", token1)
 
@@ -122,20 +108,14 @@ def test_missing_token_on_non_empty_cache(token_cache, caplog):
 
 
 def test_missing_token_function(token_cache):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     token = jwt.encode({"exp": expiry_in_1_hour}, "secret")
-    retrieved_token = token_cache.get_token(
-        "key1", on_missing_token=lambda: ("key1", token)
-    )
+    retrieved_token = token_cache.get_token("key1", on_missing_token=lambda: ("key1", token))
     assert retrieved_token == token
 
 
 def test_token_without_refresh_token(token_cache):
-    expiry_in_1_hour = datetime.datetime.now(
-        datetime.timezone.utc
-    ) + datetime.timedelta(hours=1)
+    expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
     # add token without refresh token
     token = jwt.encode({"exp": expiry_in_1_hour}, "secret")
     token_cache.tokens["key1"] = (

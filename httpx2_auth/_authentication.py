@@ -1,4 +1,4 @@
-from typing import Generator
+from collections.abc import Generator
 
 import httpx2
 
@@ -77,9 +77,7 @@ class QueryApiKey(httpx2.Auth, SupportMultiAuth):
     def auth_flow(
         self, request: httpx2.Request
     ) -> Generator[httpx2.Request, httpx2.Response, None]:
-        request.url = request.url.copy_merge_params(
-            {self.query_parameter_name: self.api_key}
-        )
+        request.url = request.url.copy_merge_params({self.query_parameter_name: self.api_key})
         yield request
 
 

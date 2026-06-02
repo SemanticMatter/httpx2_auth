@@ -3,7 +3,6 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import token_cache_mock
 
 
 @pytest.fixture
@@ -47,9 +46,7 @@ async def test_okta_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXM
 
 
 @pytest.mark.asyncio
-async def test_oauth2_authorization_code_pkce_flow(
-    token_cache_mock, httpx_mock: HTTPXMock
-):
+async def test_oauth2_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code", "https://provide_access_token"
     )
@@ -67,9 +64,7 @@ async def test_oauth2_authorization_code_pkce_flow(
 
 
 @pytest.mark.asyncio
-async def test_okta_authorization_code_pkce_flow(
-    token_cache_mock, httpx_mock: HTTPXMock
-):
+async def test_okta_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )

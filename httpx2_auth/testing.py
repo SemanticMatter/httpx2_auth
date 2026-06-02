@@ -1,8 +1,7 @@
-import urllib.request
-import threading
-from typing import Optional
-from urllib.parse import urlsplit
 import datetime
+import threading
+import urllib.request
+from urllib.parse import urlsplit
 
 import pytest
 
@@ -10,7 +9,7 @@ import httpx2_auth
 import httpx2_auth._oauth2.authentication_responses_server
 
 
-def create_token(expiry: Optional[datetime.datetime]) -> str:
+def create_token(expiry: datetime.datetime | None) -> str:
     import jwt  # Consider jwt an optional dependency for testing
 
     return jwt.encode({"exp": expiry}, "secret") if expiry else jwt.encode({}, "secret")
@@ -35,14 +34,12 @@ class Tab(threading.Thread):
         self,
         reply_url: str,
         data: str,
-        displayed_html: Optional[str] = None,
+        displayed_html: str | None = None,
     ):
         self.reply_url = reply_url
         self.data = data.encode() if data is not None else None
         self.checked = False
-        self.success_html = (
-            displayed_html
-            or """<!DOCTYPE html>
+        self.success_html = displayed_html or """<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>Authentication success</title>
@@ -120,10 +117,7 @@ p {{
         </div>
     </body>
 </html>"""
-        )
-        self.failure_html = (
-            displayed_html
-            or """<!DOCTYPE html>
+        self.failure_html = displayed_html or """<!DOCTYPE html>
 <html lang="en">
     <head>
         <title>Authentication failed</title>
@@ -201,7 +195,6 @@ p {{
         </div>
     </body>
 </html>"""
-        )
         super().__init__()
 
     def run(self) -> None:
@@ -233,9 +226,7 @@ p {{
         # Replace fragment by query parameter as requested by Javascript
         reply_url = self.reply_url.replace("#", "?")
         # Add requests_auth_redirect query parameter as requested by Javascript
-        reply_url += (
-            "&httpx2_auth_redirect=1" if "?" in reply_url else "?httpx2_auth_redirect=1"
-        )
+        reply_url += "&httpx2_auth_redirect=1" if "?" in reply_url else "?httpx2_auth_redirect=1"
         return urllib.request.urlopen(reply_url, data=self.data).read()
 
     def assert_success(self, timeout: int = 1):
@@ -265,9 +256,9 @@ class BrowserMock:
     def add_response(
         self,
         opened_url: str,
-        reply_url: Optional[str],
-        data: Optional[str] = None,
-        displayed_html: Optional[str] = None,
+        reply_url: str | None,
+        data: str | None = None,
+        displayed_html: str | None = None,
     ) -> Tab:
         """
         :param opened_url: URL opened by httpx2_auth

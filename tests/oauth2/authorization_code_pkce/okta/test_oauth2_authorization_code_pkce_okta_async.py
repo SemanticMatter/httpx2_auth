@@ -1,10 +1,10 @@
-from pytest_httpx import HTTPXMock
-import pytest
 import httpx
+import pytest
+from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import BrowserMock, browser_mock, token_cache
 from httpx2_auth._oauth2.tokens import to_expiry
+from httpx2_auth.testing import BrowserMock
 
 
 @pytest.mark.asyncio
@@ -98,9 +98,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx2_auth.OAuth2.display.success_html = (
-        "<body><div>SUCCESS: {display_time}</div></body>"
-    )
+    httpx2_auth.OAuth2.display.success_html = "<body><div>SUCCESS: {display_time}</div></body>"
     tab = browser_mock.add_response(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
@@ -619,7 +617,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url"
     )
     tab.assert_success()
 
@@ -655,7 +653,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {{'other': 'other info'}}"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {'other': 'other info'}"
     )
     tab.assert_success()
 
@@ -681,9 +679,7 @@ async def test_with_invalid_grant_request_without_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(
-            httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"
-        ):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"):
             await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -928,9 +924,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
         str(exception_info.value)
         == "invalid_request: desc\nMore information can be found on https://test_url"
     )
-    tab.assert_failure(
-        "invalid_request: desc<br>More information can be found on https://test_url"
-    )
+    tab.assert_failure("invalid_request: desc<br>More information can be found on https://test_url")
 
 
 @pytest.mark.asyncio
@@ -1063,9 +1057,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
         str(exception_info.value)
         == "invalid_scope: The requested scope is invalid, unknown, or malformed."
     )
-    tab.assert_failure(
-        "invalid_scope: The requested scope is invalid, unknown, or malformed."
-    )
+    tab.assert_failure("invalid_scope: The requested scope is invalid, unknown, or malformed.")
 
 
 @pytest.mark.asyncio

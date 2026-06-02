@@ -1,10 +1,10 @@
-from pytest_httpx import HTTPXMock
-import pytest
 import httpx
+import pytest
+from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import BrowserMock, browser_mock, token_cache
 from httpx2_auth._oauth2.tokens import to_expiry
+from httpx2_auth.testing import BrowserMock
 
 
 @pytest.mark.asyncio
@@ -91,9 +91,7 @@ async def test_oauth2_authorization_code_flow_uses_custom_success(
         scope="email",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx2_auth.OAuth2.display.success_html = (
-        "<body><div>SUCCESS: {display_time}</div></body>"
-    )
+    httpx2_auth.OAuth2.display.success_html = "<body><div>SUCCESS: {display_time}</div></body>"
     tab = browser_mock.add_response(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
@@ -668,7 +666,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url"
     )
     tab.assert_success()
 
@@ -736,9 +734,7 @@ async def test_with_invalid_grant_request_without_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(
-            httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"
-        ):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"):
             await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -975,9 +971,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(
-            httpx2_auth.InvalidGrantRequest, match="invalid_request: desc"
-        ):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="invalid_request: desc"):
             await client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure("invalid_request: desc")
@@ -1008,9 +1002,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
         str(exception_info.value)
         == "invalid_request: desc\nMore information can be found on https://test_url"
     )
-    tab.assert_failure(
-        "invalid_request: desc<br>More information can be found on https://test_url"
-    )
+    tab.assert_failure("invalid_request: desc<br>More information can be found on https://test_url")
 
 
 @pytest.mark.asyncio
@@ -1158,9 +1150,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
         str(exception_info.value)
         == "invalid_scope: The requested scope is invalid, unknown, or malformed."
     )
-    tab.assert_failure(
-        "invalid_scope: The requested scope is invalid, unknown, or malformed."
-    )
+    tab.assert_failure("invalid_scope: The requested scope is invalid, unknown, or malformed.")
 
 
 @pytest.mark.asyncio

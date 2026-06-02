@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "httpx2_auth"
 description = "Authentication for HTTPX2"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = "~=3.10"
 license = {file = "LICENSE"}
 authors = [
     {name = "Casper Welzel Andersen", email = "casper.w.andersen@sintef.no" },
@@ -46,6 +46,7 @@ testing = [
     "httpx2-pytest~=1.0",
     # Used to generate test tokens
     "pyjwt~=2.13",
+    "pytest~=9.0",
     # Used to run async tests
     "pytest-asyncio~=1.4",
     # Used to check coverage
@@ -62,8 +63,84 @@ dev = [
 version = {attr = "httpx2_auth.version.__version__"}
 
 [tool.pytest.ini_options]
+minversion = "9"
+addopts = "-rs --cov=httpx2_auth --cov-report=term-missing:skip-covered --no-cov-on-fail"
 filterwarnings = [
     "error",
 ]
-# Silence deprecation warnings about option "asyncio_default_fixture_loop_scope"
+log_level = "DEBUG"
+asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
+
+
+# --- Formatting -------------------------------------------------------------
+# black handles formatting (via the black pre-commit hook); ruff is lint-only.
+[tool.black]
+line-length = 100
+target-version = ["py310", "py311", "py312"]
+
+# --- Linting (ruff, lint-only) ----------------------------------------------
+# Rule selection adapted from the stack repo's .ruff.toml. Kept in pyproject so
+# editors/ruff auto-discover it; the pre-commit hook passes no --config.
+[tool.ruff]
+line-length = 100
+indent-width = 4
+target-version = "py310"
+
+[tool.ruff.lint]
+extend-select = [
+  "B",    # flake8-bugbear
+  "I",    # isort
+  "ARG",  # flake8-unused-arguments
+  "C4",   # flake8-comprehensions
+  "ICN",  # flake8-import-conventions
+  "G",    # flake8-logging-format
+  "PGH",  # pygrep-hooks
+  "PIE",  # flake8-pie
+  "PL",   # pylint
+  "PT",   # flake8-pytest-style
+  "PTH",  # flake8-use-pathlib
+  "RET",  # flake8-return
+  "RUF",  # Ruff-specific
+  "SIM",  # flake8-simplify
+  "T20",  # flake8-print
+  "YTT",  # flake8-2020
+  "EXE",  # flake8-executable
+  "PYI",  # flake8-pyi
+]
+ignore = [
+  "PLC",  # pylint convention codes
+  "PLR",  # pylint refactor codes
+]
+
+# [tool.ruff.lint.extend-per-file-ignores]
+# # FastAPI route signatures may use call-expressions in defaults (Depends(...)).
+# "src/deploy_pet/routes/**" = ["B008"]
+# # Tests: tuple-style parametrize names and unused-by-design fixture arguments.
+# "tests/**" = ["PT006", "ARG001", "ARG002"]
+
+# --- Type checking (mypy) ---------------------------------------------------
+# Strict (deploy-pet's own baseline) plus the pydantic plugin from the stack's
+# .mypy.ini. Auto-discovered from pyproject; the pre-commit hook passes no
+# --config-file. mypy runs in pre-commit's isolated env, never the project venv.
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+scripts_are_modules = true
+warn_unused_configs = true
+show_error_codes = true
+allow_redefinition = true
+warn_unreachable = true
+# plugins = ["pydantic.mypy"]
+mypy_path = "."
+explicit_package_bases = true
+check_untyped_defs = true
+
+# --- Security linting (bandit) ----------------------------------------------
+# Read via `bandit -c pyproject.toml`. B404/B603 are skipped project-wide: all
+# subprocess use is funnelled through the single shell=False, fixed-argv
+# chokepoint in commands.py (see that module). Anything more specific (e.g. the
+# parameterized SQL IN-clause) is suppressed inline with `# nosec`.
+[tool.bandit]
+exclude_dirs = ["tests"]
+skips = ["B404", "B603"]

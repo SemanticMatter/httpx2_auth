@@ -3,7 +3,6 @@ import pytest
 from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import token_cache_mock, token_mock
 
 
 @pytest.mark.asyncio

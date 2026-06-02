@@ -1,11 +1,10 @@
 import time
 
-from pytest_httpx import HTTPXMock
-import pytest
 import httpx
+import pytest
+from pytest_httpx import HTTPXMock
 
 import httpx2_auth
-from httpx2_auth.testing import token_cache
 from httpx2_auth._oauth2.tokens import to_expiry
 
 
@@ -252,9 +251,7 @@ async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPX
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+async def test_with_invalid_grant_request_invalid_request_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
@@ -326,7 +323,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url"
     )
 
 
@@ -356,14 +353,12 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
     assert (
         str(exception_info.value)
-        == f"invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {{'other': 'other info'}}"
+        == "invalid_request: desc of the error\nMore information can be found on https://test_url\nAdditional information: {'other': 'other info'}"
     )
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_without_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
@@ -383,9 +378,7 @@ async def test_with_invalid_grant_request_without_error(
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+async def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
@@ -415,9 +408,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
@@ -495,9 +486,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock
-):
+async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )

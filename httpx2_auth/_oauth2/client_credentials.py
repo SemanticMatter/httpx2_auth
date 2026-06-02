@@ -1,13 +1,14 @@
 import copy
+from collections.abc import Iterable
 from hashlib import sha512
-from typing import Union, Iterable
 
 import httpx2
+
 from httpx2_auth._authentication import SupportMultiAuth
 from httpx2_auth._oauth2.common import (
     OAuth2BaseAuth,
-    request_new_grant_with_post,
     _add_parameters,
+    request_new_grant_with_post,
 )
 
 
@@ -114,7 +115,7 @@ class OktaClientCredentials(OAuth2ClientCredentials):
         client_id: str,
         client_secret: str,
         *,
-        scope: Union[str, Iterable[str]],
+        scope: str | Iterable[str],
         **kwargs,
     ):
         """

@@ -1,9 +1,9 @@
 import time
 
+import httpx
 import pytest
 import time_machine
 from pytest_httpx import HTTPXMock
-import httpx
 
 import httpx2_auth
 
@@ -147,9 +147,7 @@ async def test_aws_auth_includes_custom_x_amz_headers(
     )
 
     async with httpx.AsyncClient() as client:
-        await client.post(
-            "https://authorized_only", headers={"X-AmZ-CustoM": "Custom"}, auth=auth
-        )
+        await client.post("https://authorized_only", headers={"X-AmZ-CustoM": "Custom"}, auth=auth)
 
 
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)

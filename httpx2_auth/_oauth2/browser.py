@@ -12,7 +12,9 @@ class BrowserAuth:
         redirect_uri_domain = kwargs.pop("redirect_uri_domain", None) or "localhost"
         redirect_uri_endpoint = kwargs.pop("redirect_uri_endpoint", None) or ""
         self.redirect_uri_port = int(kwargs.pop("redirect_uri_port", None) or 5000)
-        self.redirect_uri = f"http://{redirect_uri_domain}:{self.redirect_uri_port}/{redirect_uri_endpoint}"
+        self.redirect_uri = (
+            f"http://{redirect_uri_domain}:{self.redirect_uri_port}/{redirect_uri_endpoint}"
+        )
 
         # Time is expressed in seconds
         self.timeout = float(kwargs.pop("timeout", None) or 60)

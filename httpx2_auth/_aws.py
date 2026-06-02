@@ -9,8 +9,8 @@ import datetime
 import hashlib
 import hmac
 from collections import defaultdict
+from collections.abc import Generator
 from posixpath import normpath
-from typing import Generator
 from urllib.parse import quote
 
 import httpx2
@@ -23,9 +23,7 @@ class AWS4Auth(httpx2.Auth):
 
     requires_request_body = True
 
-    def __init__(
-        self, access_id: str, secret_key: str, region: str, service: str, **kwargs
-    ):
+    def __init__(self, access_id: str, secret_key: str, region: str, service: str, **kwargs):
         """
 
         :param access_id: AWS access ID
@@ -53,9 +51,7 @@ class AWS4Auth(httpx2.Auth):
 
         self.security_token = kwargs.get("security_token")
 
-        self.include_headers = {
-            header.lower() for header in kwargs.get("include_headers", [])
-        }
+        self.include_headers = {header.lower() for header in kwargs.get("include_headers", [])}
 
     def auth_flow(
         self, request: httpx2.Request
@@ -71,9 +67,7 @@ class AWS4Auth(httpx2.Auth):
         # The x-amz-content-sha256 header is required for all AWS Signature Version 4 requests.
         # It provides a hash of the request payload.
         # If there is no payload, you must provide the hash of an empty string.
-        request.headers["x-amz-content-sha256"] = hashlib.sha256(
-            request.read()
-        ).hexdigest()
+        request.headers["x-amz-content-sha256"] = hashlib.sha256(request.read()).hexdigest()
 
         # https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html
         # if you are using temporary security credentials, you need to include x-amz-security-token in your request.
@@ -84,9 +78,7 @@ class AWS4Auth(httpx2.Auth):
         canonical_headers, signed_headers = canonical_and_signed_headers(
             request.headers, self.include_headers
         )
-        canonical_request = self._canonical_request(
-            request, canonical_headers, signed_headers
-        )
+        canonical_request = self._canonical_request(request, canonical_headers, signed_headers)
         scope = f"{date.strftime('%Y%m%d')}/{self.region}/{self.service}/aws4_request"
         string_to_sign = _string_to_sign(request, canonical_request, scope)
         signing_key = _signing_key(
@@ -194,9 +186,7 @@ def canonical_and_signed_headers(
 
 def _string_to_sign(request: httpx2.Request, canonical_request: str, scope: str) -> str:
     hsh = hashlib.sha256(canonical_request.encode())
-    return "\n".join(
-        ["AWS4-HMAC-SHA256", request.headers["x-amz-date"], scope, hsh.hexdigest()]
-    )
+    return "\n".join(["AWS4-HMAC-SHA256", request.headers["x-amz-date"], scope, hsh.hexdigest()])
 
 
 def canonical_uri(url: httpx2.URL, is_s3: bool) -> str:
@@ -312,7 +302,7 @@ def canonical_query_string(url: httpx2.URL) -> str:
 
 
 def _signing_key(secret_key: str, region: str, service: str, date: str) -> bytes:
-    init_key = f"AWS4{secret_key}".encode("utf-8")
+    init_key = f"AWS4{secret_key}".encode()
     date_key = sign_sha256(init_key, date)
     region_key = sign_sha256(date_key, region)
     service_key = sign_sha256(region_key, service)
@@ -324,7 +314,7 @@ def sign_sha256(signing_key: bytes, message: str) -> bytes:
 
 
 def uri_encode(value: str, is_key: bool = False) -> str:
-    """
+    r"""
     See https://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-header-based-auth.html for more details.
 
     URI encode every byte. UriEncode() must enforce the following rules:

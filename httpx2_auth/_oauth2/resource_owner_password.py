@@ -1,11 +1,12 @@
 from hashlib import sha512
 
 import httpx2
+
 from httpx2_auth._authentication import SupportMultiAuth
 from httpx2_auth._oauth2.common import (
     OAuth2BaseAuth,
-    request_new_grant_with_post,
     _add_parameters,
+    request_new_grant_with_post,
 )
 
 
@@ -105,11 +106,7 @@ class OAuth2ResourceOwnerPasswordCredentials(OAuth2BaseAuth, SupportMultiAuth):
             if self.client is None:
                 client.close()
         # Handle both Access and Bearer tokens
-        return (
-            (self.state, token, expires_in, refresh_token)
-            if expires_in
-            else (self.state, token)
-        )
+        return (self.state, token, expires_in, refresh_token) if expires_in else (self.state, token)
 
     def refresh_token(self, refresh_token: str) -> tuple:
         client = self.client or httpx2.Client()
