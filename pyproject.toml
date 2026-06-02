@@ -65,7 +65,7 @@ dev = [
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "httpx2_auth.version.__version__"}
+version = {attr = "httpx2_auth.__version__"}
 
 [tool.pytest.ini_options]
 minversion = "9"
