@@ -1,10 +1,10 @@
 from json import JSONDecodeError
 from typing import Union
 
-import httpx
+import httpx2
 
 
-class HttpxAuthException(httpx.HTTPError): ...
+class HttpxAuthException(httpx2.HTTPError): ...
 
 
 class AuthenticationFailed(HttpxAuthException):
@@ -66,11 +66,11 @@ class InvalidGrantRequest(HttpxAuthException):
         "temporarily_unavailable": "The authorization server is currently unable to handle the request due to a temporary overloading or maintenance of the server.  (This error code is needed because a 503 Service Unavailable HTTP status code cannot be returned to the client via an HTTP redirect.)",
     }
 
-    def __init__(self, response: Union[httpx.Response, dict]):
+    def __init__(self, response: Union[httpx2.Response, dict]):
         HttpxAuthException.__init__(self, InvalidGrantRequest.to_message(response))
 
     @staticmethod
-    def to_message(response: Union[httpx.Response, dict]) -> str:
+    def to_message(response: Union[httpx2.Response, dict]) -> str:
         """
         Handle response as described in:
             * https://tools.ietf.org/html/rfc6749#section-5.2

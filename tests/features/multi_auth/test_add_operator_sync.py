@@ -3,14 +3,14 @@ import datetime
 from pytest_httpx import HTTPXMock
 import httpx
 
-import httpx_auth
-from httpx_auth.testing import BrowserMock, create_token, token_cache, browser_mock
-import httpx_auth._oauth2.authorization_code_pkce
+import httpx2_auth
+from httpx2_auth.testing import BrowserMock, create_token, token_cache, browser_mock
+import httpx2_auth._oauth2.authorization_code_pkce
 
 
 def test_basic_and_api_key_authentication_can_be_combined(httpx_mock: HTTPXMock):
-    basic_auth = httpx_auth.Basic("test_user", "test_pwd")
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    basic_auth = httpx2_auth.Basic("test_user", "test_pwd")
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
     auth = basic_auth + api_key_auth
 
     httpx_mock.add_response(
@@ -29,11 +29,11 @@ def test_basic_and_api_key_authentication_can_be_combined(httpx_mock: HTTPXMock)
 def test_header_api_key_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
-    api_key_auth3 = httpx_auth.HeaderApiKey(
+    api_key_auth3 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key3", header_name="X-Api-Key3"
     )
     auth = api_key_auth + (api_key_auth2 + api_key_auth3)
@@ -55,11 +55,11 @@ def test_header_api_key_and_multiple_authentication_can_be_combined(
 def test_multiple_auth_and_header_api_key_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
-    api_key_auth3 = httpx_auth.HeaderApiKey(
+    api_key_auth3 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key3", header_name="X-Api-Key3"
     )
     auth = (api_key_auth + api_key_auth2) + api_key_auth3
@@ -81,14 +81,14 @@ def test_multiple_auth_and_header_api_key_can_be_combined(
 def test_multiple_auth_and_multiple_auth_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
-    api_key_auth3 = httpx_auth.HeaderApiKey(
+    api_key_auth3 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key3", header_name="X-Api-Key3"
     )
-    api_key_auth4 = httpx_auth.HeaderApiKey(
+    api_key_auth4 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key4", header_name="X-Api-Key4"
     )
     auth = (api_key_auth + api_key_auth2) + (api_key_auth3 + api_key_auth4)
@@ -111,11 +111,11 @@ def test_multiple_auth_and_multiple_auth_can_be_combined(
 def test_basic_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    basic_auth = httpx_auth.Basic("test_user", "test_pwd")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    basic_auth = httpx2_auth.Basic("test_user", "test_pwd")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
-    api_key_auth3 = httpx_auth.HeaderApiKey(
+    api_key_auth3 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key3", header_name="X-Api-Key3"
     )
     auth = basic_auth + (api_key_auth2 + api_key_auth3)
@@ -137,11 +137,11 @@ def test_basic_and_multiple_authentication_can_be_combined(
 def test_query_api_key_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    api_key_auth = httpx_auth.QueryApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.QueryApiKey(
+    api_key_auth = httpx2_auth.QueryApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.QueryApiKey(
         "my_provided_api_key2", query_parameter_name="api_key2"
     )
-    api_key_auth3 = httpx_auth.HeaderApiKey(
+    api_key_auth3 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key3", header_name="X-Api-Key3"
     )
     auth = api_key_auth + (api_key_auth2 + api_key_auth3)
@@ -161,10 +161,10 @@ def test_query_api_key_and_multiple_authentication_can_be_combined(
 def test_oauth2_resource_owner_password_and_api_key_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    resource_owner_password_auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    resource_owner_password_auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
     auth = resource_owner_password_auth + api_key_auth
 
     httpx_mock.add_response(
@@ -195,11 +195,11 @@ def test_oauth2_resource_owner_password_and_api_key_authentication_can_be_combin
 def test_oauth2_resource_owner_password_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    resource_owner_password_auth = httpx_auth.OAuth2ResourceOwnerPasswordCredentials(
+    resource_owner_password_auth = httpx2_auth.OAuth2ResourceOwnerPasswordCredentials(
         "https://provide_access_token", username="test_user", password="test_pwd"
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
     auth = resource_owner_password_auth + (api_key_auth + api_key_auth2)
@@ -233,10 +233,10 @@ def test_oauth2_resource_owner_password_and_multiple_authentication_can_be_combi
 def test_oauth2_client_credential_and_api_key_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    resource_owner_password_auth = httpx_auth.OAuth2ClientCredentials(
+    resource_owner_password_auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
     auth = resource_owner_password_auth + api_key_auth
 
     httpx_mock.add_response(
@@ -267,11 +267,11 @@ def test_oauth2_client_credential_and_api_key_authentication_can_be_combined(
 def test_oauth2_client_credential_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock
 ):
-    resource_owner_password_auth = httpx_auth.OAuth2ClientCredentials(
+    resource_owner_password_auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
     auth = resource_owner_password_auth + (api_key_auth + api_key_auth2)
@@ -305,12 +305,12 @@ def test_oauth2_client_credential_and_multiple_authentication_can_be_combined(
 def test_oauth2_authorization_code_and_api_key_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    authorization_code_auth = httpx_auth.OAuth2AuthorizationCode(
+    authorization_code_auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
     auth = authorization_code_auth + api_key_auth
 
     tab = browser_mock.add_response(
@@ -348,13 +348,13 @@ def test_oauth2_authorization_code_and_api_key_authentication_can_be_combined(
 def test_oauth2_authorization_code_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    authorization_code_auth = httpx_auth.OAuth2AuthorizationCode(
+    authorization_code_auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
     auth = authorization_code_auth + (api_key_auth + api_key_auth2)
@@ -400,14 +400,14 @@ def test_oauth2_pkce_and_api_key_authentication_can_be_combined(
     unused_tcp_port: int,
 ):
     monkeypatch.setattr(
-        httpx_auth._oauth2.authorization_code_pkce.os, "urandom", lambda x: b"1" * 63
+        httpx2_auth._oauth2.authorization_code_pkce.os, "urandom", lambda x: b"1" * 63
     )
-    pkce_auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    pkce_auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
     auth = pkce_auth + api_key_auth
 
     tab = browser_mock.add_response(
@@ -450,15 +450,15 @@ def test_oauth2_pkce_and_multiple_authentication_can_be_combined(
     unused_tcp_port: int,
 ):
     monkeypatch.setattr(
-        httpx_auth._oauth2.authorization_code_pkce.os, "urandom", lambda x: b"1" * 63
+        httpx2_auth._oauth2.authorization_code_pkce.os, "urandom", lambda x: b"1" * 63
     )
-    pkce_auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    pkce_auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
     auth = pkce_auth + (api_key_auth + api_key_auth2)
@@ -499,11 +499,11 @@ def test_oauth2_pkce_and_multiple_authentication_can_be_combined(
 def test_oauth2_implicit_and_api_key_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    implicit_auth = httpx_auth.OAuth2Implicit(
+    implicit_auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         redirect_uri_port=unused_tcp_port,
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
     auth = implicit_auth + api_key_auth
 
     expiry_in_1_hour = datetime.datetime.now(
@@ -534,12 +534,12 @@ def test_oauth2_implicit_and_api_key_authentication_can_be_combined(
 def test_oauth2_implicit_and_multiple_authentication_can_be_combined(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    implicit_auth = httpx_auth.OAuth2Implicit(
+    implicit_auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         redirect_uri_port=unused_tcp_port,
     )
-    api_key_auth = httpx_auth.HeaderApiKey("my_provided_api_key")
-    api_key_auth2 = httpx_auth.HeaderApiKey(
+    api_key_auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
+    api_key_auth2 = httpx2_auth.HeaderApiKey(
         "my_provided_api_key2", header_name="X-Api-Key2"
     )
     auth = implicit_auth + (api_key_auth + api_key_auth2)

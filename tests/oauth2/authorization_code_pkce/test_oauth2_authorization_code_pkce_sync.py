@@ -4,16 +4,16 @@ from pytest_httpx import HTTPXMock
 import pytest
 import httpx
 
-import httpx_auth
-from httpx_auth.testing import BrowserMock, browser_mock, token_cache
-from httpx_auth._oauth2.tokens import to_expiry
+import httpx2_auth
+from httpx2_auth.testing import BrowserMock, browser_mock, token_cache
+from httpx2_auth._oauth2.tokens import to_expiry
 
 
 def test_oauth2_pkce_flow_uses_provided_client(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         client=client,
@@ -53,7 +53,7 @@ def test_oauth2_pkce_flow_uses_provided_client(
 def test_oauth2_pkce_flow_uses_redirect_uri_domain(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_domain="localhost.mycompany.com",
@@ -92,12 +92,12 @@ def test_oauth2_pkce_flow_uses_redirect_uri_domain(
 def test_oauth2_pkce_flow_uses_custom_success(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx_auth.OAuth2.display.success_html = (
+    httpx2_auth.OAuth2.display.success_html = (
         "<body><div>SUCCESS: {display_time}</div></body>"
     )
     tab = browser_mock.add_response(
@@ -134,12 +134,12 @@ def test_oauth2_pkce_flow_uses_custom_success(
 def test_oauth2_pkce_flow_uses_custom_failure(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
+    httpx2_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
     tab = browser_mock.add_response(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
@@ -147,7 +147,7 @@ def test_oauth2_pkce_flow_uses_custom_failure(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest):
             client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure(
@@ -159,7 +159,7 @@ def test_oauth2_pkce_flow_is_able_to_reuse_client(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         client=client,
@@ -228,7 +228,7 @@ def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         client=client,
@@ -294,7 +294,7 @@ def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
 def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -332,7 +332,7 @@ def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_default(
 def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -377,7 +377,7 @@ def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
 def test_oauth2_pkce_flow_get_code_custom_expiry(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code", "https://provide_access_token", early_expiry=28
     )
     # Add a token that expires in 29 seconds, so should be considered as not expired when issuing the request
@@ -401,7 +401,7 @@ def test_oauth2_pkce_flow_get_code_custom_expiry(
 def test_oauth2_authorization_code_flow_refresh_token(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -464,7 +464,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
 def test_oauth2_authorization_code_flow_refresh_token_invalid(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -543,7 +543,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
 def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -593,7 +593,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
 def test_expires_in_sent_as_str(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -631,7 +631,7 @@ def test_expires_in_sent_as_str(
 def test_nonce_is_sent_if_provided_in_authorization_url(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -669,7 +669,7 @@ def test_nonce_is_sent_if_provided_in_authorization_url(
 def test_with_invalid_grant_request_no_json(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -686,7 +686,7 @@ def test_with_invalid_grant_request_no_json(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest, match="failure"):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="failure"):
             client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -695,7 +695,7 @@ def test_with_invalid_grant_request_no_json(
 def test_with_invalid_grant_request_invalid_request_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -712,7 +712,7 @@ def test_with_invalid_grant_request_invalid_request_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -728,7 +728,7 @@ def test_with_invalid_grant_request_invalid_request_error(
 def test_with_invalid_grant_request_invalid_request_error_and_error_description(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -745,7 +745,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "invalid_request: desc of the error"
@@ -755,7 +755,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -776,7 +776,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -789,7 +789,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -811,7 +811,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -824,7 +824,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 def test_with_invalid_grant_request_without_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -841,7 +841,7 @@ def test_with_invalid_grant_request_without_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "{'other': 'other info'}"
@@ -851,7 +851,7 @@ def test_with_invalid_grant_request_without_error(
 def test_with_invalid_grant_request_invalid_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -868,7 +868,7 @@ def test_with_invalid_grant_request_invalid_client_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -888,7 +888,7 @@ def test_with_invalid_grant_request_invalid_client_error(
 def test_with_invalid_grant_request_invalid_grant_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -905,7 +905,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -921,7 +921,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
 def test_with_invalid_grant_request_unauthorized_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -938,7 +938,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -952,7 +952,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
 def test_with_invalid_grant_request_unsupported_grant_type_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -969,7 +969,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -983,7 +983,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
 def test_with_invalid_grant_request_invalid_scope_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1000,7 +1000,7 @@ def test_with_invalid_grant_request_invalid_scope_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1014,7 +1014,7 @@ def test_with_invalid_grant_request_invalid_scope_error(
 def test_with_invalid_token_request_invalid_request_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1025,7 +1025,7 @@ def test_with_invalid_token_request_invalid_request_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1040,7 +1040,7 @@ def test_with_invalid_token_request_invalid_request_error(
 def test_with_invalid_token_request_invalid_request_error_and_error_description(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1051,7 +1051,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "invalid_request: desc"
@@ -1061,7 +1061,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
 def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1072,7 +1072,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1087,7 +1087,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
 def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1098,7 +1098,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1113,7 +1113,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
 def test_with_invalid_token_request_unauthorized_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1124,7 +1124,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1139,7 +1139,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
 def test_with_invalid_token_request_access_denied_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1150,7 +1150,7 @@ def test_with_invalid_token_request_access_denied_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1165,7 +1165,7 @@ def test_with_invalid_token_request_access_denied_error(
 def test_with_invalid_token_request_unsupported_response_type_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1176,7 +1176,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1191,7 +1191,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
 def test_with_invalid_token_request_invalid_scope_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1202,7 +1202,7 @@ def test_with_invalid_token_request_invalid_scope_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1217,7 +1217,7 @@ def test_with_invalid_token_request_invalid_scope_error(
 def test_with_invalid_token_request_server_error_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1228,7 +1228,7 @@ def test_with_invalid_token_request_server_error_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1243,7 +1243,7 @@ def test_with_invalid_token_request_server_error_error(
 def test_with_invalid_token_request_temporarily_unavailable_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
         "https://provide_access_token",
         redirect_uri_port=unused_tcp_port,
@@ -1254,7 +1254,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1269,7 +1269,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
 def test_response_type_can_be_provided_in_url(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2AuthorizationCodePKCE(
+    auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?response_type=my_code",
         "https://provide_access_token",
         response_type="not_used",

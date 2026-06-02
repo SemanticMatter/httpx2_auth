@@ -3,16 +3,17 @@ requires = ["setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "httpx_auth"
-description = "Authentication for HTTPX"
+name = "httpx2_auth"
+description = "Authentication for HTTPX2"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = {file = "LICENSE"}
 authors = [
+    {name = "Casper Welzel Andersen", email = "casper.w.andersen@sintef.no" },
     {name = "Colin Bounouar", email = "colin.bounouar.dev@gmail.com" }
 ]
 maintainers = [
-    {name = "Colin Bounouar", email = "colin.bounouar.dev@gmail.com" }
+    {name = "Casper Welzel Andersen", email = "casper.w.andersen@sintef.no" }
 ]
 keywords = ["authentication", "oauth2", "aws", "okta", "aad", "entra"]
 classifiers=[
@@ -23,7 +24,6 @@ classifiers=[
     "Typing :: Typed",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
@@ -31,32 +31,35 @@ classifiers=[
     "Topic :: Software Development :: Build Tools",
 ]
 dependencies = [
-    "httpx==0.28.*",
+    "httpx2~=2.3",
 ]
 dynamic = ["version"]
 
 [project.urls]
-documentation = "https://colin-b.github.io/httpx_auth/"
-repository = "https://github.com/Colin-b/httpx_auth"
-changelog = "https://github.com/Colin-b/httpx_auth/blob/master/CHANGELOG.md"
-issues = "https://github.com/Colin-b/httpx_auth/issues"
+repository = "https://github.com/SemanticMatter/httpx2_auth"
+changelog = "https://github.com/SemanticMatter/httpx2_auth/blob/master/CHANGELOG.md"
+issues = "https://github.com/SemanticMatter/httpx2_auth/issues"
 
 [project.optional-dependencies]
 testing = [
+    # Used to mock httpx2
+    "httpx2-pytest~=1.0",
     # Used to generate test tokens
-    "pyjwt==2.*",
-    # Used to mock httpx
-    "pytest_httpx==0.35.*",
-    # Used to mock date and time
-    "time-machine==2.*",
-    # Used to check coverage
-    "pytest-cov==6.*",
+    "pyjwt~=2.13",
     # Used to run async tests
-    "pytest-asyncio==0.25.*",
+    "pytest-asyncio~=1.4",
+    # Used to check coverage
+    "pytest-cov~=7.1",
+    # Used to mock date and time
+    "time-machine~=3.2",
+]
+dev = [
+    "httpx2_auth[testing]",
+    "pre-commit~=4.6",
 ]
 
 [tool.setuptools.dynamic]
-version = {attr = "httpx_auth.version.__version__"}
+version = {attr = "httpx2_auth.version.__version__"}
 
 [tool.pytest.ini_options]
 filterwarnings = [

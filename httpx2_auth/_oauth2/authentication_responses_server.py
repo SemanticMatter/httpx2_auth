@@ -4,15 +4,15 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from urllib.parse import parse_qs, urlparse
 from socket import socket
 
-import httpx
+import httpx2
 
-from httpx_auth._errors import (
+from httpx2_auth._errors import (
     InvalidGrantRequest,
     GrantNotProvided,
     StateNotProvided,
     TimeoutOccurred,
 )
-from httpx_auth._oauth2.common import OAuth2
+from httpx2_auth._oauth2.common import OAuth2
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +30,7 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
         try:
             args = self._get_params()
             if self.server.grant_details.name in args or args.pop(
-                "httpx_auth_redirect", None
+                "httpx2_auth_redirect", None
             ):
                 self._parse_grant(args)
             else:
@@ -114,9 +114,9 @@ class OAuth2ResponseHandler(BaseHTTPRequestHandler):
         return """<html><body><script>
         var new_url = window.location.href.replace("#","?");
         if (new_url.indexOf("?") !== -1) {
-            new_url += "&httpx_auth_redirect=1";
+            new_url += "&httpx2_auth_redirect=1";
         } else {
-            new_url += "?httpx_auth_redirect=1";
+            new_url += "?httpx2_auth_redirect=1";
         }
         window.location.replace(new_url)
         </script></body></html>"""
@@ -195,10 +195,10 @@ def _open_url(url: str) -> None:
         logger.debug(f"Opening browser on {url}")
         if not browser.open(url, new=1):
             logger.warning("Unable to open URL, try with a GET request.")
-            httpx.get(url)
+            httpx2.get(url)
     except webbrowser.Error:
         logger.exception("Unable to open URL, try with a GET request.")
-        httpx.get(url)
+        httpx2.get(url)
 
 
 def _wait_for_grant(server: FixedHttpServer) -> (str, str):

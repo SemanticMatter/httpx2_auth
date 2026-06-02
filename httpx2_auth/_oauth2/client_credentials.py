@@ -2,9 +2,9 @@ import copy
 from hashlib import sha512
 from typing import Union, Iterable
 
-import httpx
-from httpx_auth._authentication import SupportMultiAuth
-from httpx_auth._oauth2.common import (
+import httpx2
+from httpx2_auth._authentication import SupportMultiAuth
+from httpx2_auth._oauth2.common import (
     OAuth2BaseAuth,
     request_new_grant_with_post,
     _add_parameters,
@@ -36,7 +36,7 @@ class OAuth2ClientCredentials(OAuth2BaseAuth, SupportMultiAuth):
         :param early_expiry: Number of seconds before actual token expiry where token will be considered as expired.
         Default to 30 seconds to ensure token will not expire between the time of retrieval and the time the request
         reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as query parameter in the token URL.
         """
@@ -69,8 +69,8 @@ class OAuth2ClientCredentials(OAuth2BaseAuth, SupportMultiAuth):
         self.data.update(kwargs)
 
         cache_data = copy.deepcopy(self.data)
-        cache_data["_httpx_auth_client_id"] = self.client_id
-        cache_data["_httpx_auth_client_secret"] = self.client_secret
+        cache_data["_httpx2_auth_client_id"] = self.client_id
+        cache_data["_httpx2_auth_client_secret"] = self.client_secret
         all_parameters_in_url = _add_parameters(self.token_url, cache_data)
         state = sha512(all_parameters_in_url.encode("unicode_escape")).hexdigest()
 
@@ -82,7 +82,7 @@ class OAuth2ClientCredentials(OAuth2BaseAuth, SupportMultiAuth):
         )
 
     def request_new_token(self) -> tuple:
-        client = self.client or httpx.Client()
+        client = self.client or httpx2.Client()
         self._configure_client(client)
         try:
             # As described in https://tools.ietf.org/html/rfc6749#section-4.4.3
@@ -96,7 +96,7 @@ class OAuth2ClientCredentials(OAuth2BaseAuth, SupportMultiAuth):
         # Handle both Access and Bearer tokens
         return (self.state, token, expires_in) if expires_in else (self.state, token)
 
-    def _configure_client(self, client: httpx.Client):
+    def _configure_client(self, client: httpx2.Client):
         client.auth = (self.client_id, self.client_secret)
         client.timeout = self.timeout
 
@@ -135,7 +135,7 @@ class OktaClientCredentials(OAuth2ClientCredentials):
         :param early_expiry: Number of seconds before actual token expiry where token will be considered as expired.
         Default to 30 seconds to ensure token will not expire between the time of retrieval and the time the request
         reaches the actual server. Set it to 0 to deactivate this feature and use the same token until actual expiry.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as query parameter in the token URL.
         """

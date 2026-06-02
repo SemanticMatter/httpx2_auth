@@ -5,13 +5,13 @@ import time_machine
 from pytest_httpx import HTTPXMock
 import httpx
 
-import httpx_auth
+import httpx2_auth
 
 
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_without_content_in_request(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -35,7 +35,7 @@ async def test_aws_auth_without_content_in_request(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_with_content_in_request(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -62,7 +62,7 @@ async def test_aws_auth_with_content_in_request(httpx_mock: HTTPXMock):
 async def test_aws_auth_with_security_token_and_without_content_in_request(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -90,14 +90,14 @@ async def test_aws_auth_with_security_token_and_without_content_in_request(
 async def test_aws_auth_share_security_tokens_between_instances(
     httpx_mock: HTTPXMock,
 ):
-    httpx_auth.AWS4Auth(
+    httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
         service="iam",
         security_token="security_token1",
     )
-    auth2 = httpx_auth.AWS4Auth(
+    auth2 = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -126,7 +126,7 @@ async def test_aws_auth_share_security_tokens_between_instances(
 async def test_aws_auth_includes_custom_x_amz_headers(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -157,7 +157,7 @@ async def test_aws_auth_includes_custom_x_amz_headers(
 async def test_aws_auth_excludes_x_amz_client_context_header(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -188,7 +188,7 @@ async def test_aws_auth_excludes_x_amz_client_context_header(
 async def test_aws_auth_allows_to_include_custom_and_default_forbidden_header(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -224,7 +224,7 @@ async def test_aws_auth_allows_to_include_custom_and_default_forbidden_header(
 async def test_aws_auth_does_not_strips_header_names(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -258,7 +258,7 @@ async def test_aws_auth_does_not_strips_header_names(
 async def test_aws_auth_header_with_multiple_values(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -295,7 +295,7 @@ async def test_aws_auth_header_with_multiple_values(
 async def test_aws_auth_header_performances_with_spaces_in_value(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -335,7 +335,7 @@ async def test_aws_auth_header_performances_with_spaces_in_value(
 async def test_aws_auth_header_performances_without_spaces_in_value(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -394,7 +394,7 @@ async def test_aws_auth_header_performances_without_spaces_in_value(
 async def test_aws_auth_headers_encoded_values(
     httpx_mock: HTTPXMock, decoded_value: str, signature: str
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -428,7 +428,7 @@ async def test_aws_auth_headers_encoded_values(
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_host_header_with_port(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -457,7 +457,7 @@ async def test_aws_auth_host_header_with_port(httpx_mock: HTTPXMock):
 async def test_aws_auth_with_security_token_and_content_in_request(
     httpx_mock: HTTPXMock,
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -484,7 +484,7 @@ async def test_aws_auth_with_security_token_and_content_in_request(
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_override_x_amz_date_header(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -512,7 +512,7 @@ async def test_aws_auth_override_x_amz_date_header(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_root_path(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -536,7 +536,7 @@ async def test_aws_auth_root_path(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_query_parameters(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -563,7 +563,7 @@ async def test_aws_auth_query_parameters(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_query_parameters_with_multiple_values(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -619,7 +619,7 @@ async def test_aws_auth_query_parameters_with_multiple_values(httpx_mock: HTTPXM
 async def test_aws_auth_query_parameters_encoded_values(
     httpx_mock: HTTPXMock, decoded_value: str, encoded_value: str, signature: str
 ):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -647,7 +647,7 @@ async def test_aws_auth_query_parameters_encoded_values(
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_query_reserved(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -674,7 +674,7 @@ async def test_aws_auth_query_reserved(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_query_reserved_with_fragment(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -701,7 +701,7 @@ async def test_aws_auth_query_reserved_with_fragment(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_query_parameters_with_semicolon(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -728,7 +728,7 @@ async def test_aws_auth_query_parameters_with_semicolon(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_path_normalize(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -752,7 +752,7 @@ async def test_aws_auth_path_normalize(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_path_quoting(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -776,7 +776,7 @@ async def test_aws_auth_path_quoting(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_path_percent_encode_non_s3(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -800,7 +800,7 @@ async def test_aws_auth_path_percent_encode_non_s3(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_path_percent_encode_s3(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",
@@ -824,7 +824,7 @@ async def test_aws_auth_path_percent_encode_s3(httpx_mock: HTTPXMock):
 @time_machine.travel("2018-10-11T15:05:05.663979+00:00", tick=False)
 @pytest.mark.asyncio
 async def test_aws_auth_without_path(httpx_mock: HTTPXMock):
-    auth = httpx_auth.AWS4Auth(
+    auth = httpx2_auth.AWS4Auth(
         access_id="access_id",
         secret_key="wJalrXUtnFEMI/K7MDENG+bPxRfiCYEXAMPLEKEY",
         region="us-east-1",

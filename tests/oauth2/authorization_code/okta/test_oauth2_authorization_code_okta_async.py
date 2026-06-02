@@ -3,9 +3,9 @@ from pytest_httpx import HTTPXMock
 import pytest
 import httpx
 
-import httpx_auth
-from httpx_auth.testing import BrowserMock, browser_mock, token_cache
-from httpx_auth._oauth2.tokens import to_expiry
+import httpx2_auth
+from httpx2_auth.testing import BrowserMock, browser_mock, token_cache
+from httpx2_auth._oauth2.tokens import to_expiry
 
 
 @pytest.mark.asyncio
@@ -13,7 +13,7 @@ async def test_oauth2_authorization_code_flow_uses_provided_client(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx.Client(headers={"x-test": "Test value"})
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         client=client,
@@ -54,7 +54,7 @@ async def test_oauth2_authorization_code_flow_uses_provided_client(
 async def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_domain="localhost.mycompany.com",
@@ -94,12 +94,12 @@ async def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
 async def test_oauth2_authorization_code_flow_uses_custom_success(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx_auth.OAuth2.display.success_html = (
+    httpx2_auth.OAuth2.display.success_html = (
         "<body><div>SUCCESS: {display_time}</div></body>"
     )
     tab = browser_mock.add_response(
@@ -137,12 +137,12 @@ async def test_oauth2_authorization_code_flow_uses_custom_success(
 async def test_oauth2_authorization_code_flow_uses_custom_failure(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
     )
-    httpx_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
+    httpx2_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
     tab = browser_mock.add_response(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
@@ -150,7 +150,7 @@ async def test_oauth2_authorization_code_flow_uses_custom_failure(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest):
             await client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure(
@@ -162,7 +162,7 @@ async def test_oauth2_authorization_code_flow_uses_custom_failure(
 async def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -201,7 +201,7 @@ async def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_
 async def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -247,7 +247,7 @@ async def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_secon
 async def test_oauth2_authorization_code_flow_get_code_custom_expiry(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         early_expiry=28,
@@ -275,7 +275,7 @@ async def test_oauth2_authorization_code_flow_get_code_custom_expiry(
 async def test_oauth2_authorization_code_flow_refresh_token(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -338,7 +338,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
 async def test_oauth2_authorization_code_flow_refresh_token_invalid(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -417,7 +417,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
 async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -467,7 +467,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 async def test_empty_token_is_invalid(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -489,7 +489,7 @@ async def test_empty_token_is_invalid(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.GrantNotProvided) as exception_info:
+        with pytest.raises(httpx2_auth.GrantNotProvided) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -503,7 +503,7 @@ async def test_empty_token_is_invalid(
 async def test_with_invalid_grant_request_no_json(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -520,7 +520,7 @@ async def test_with_invalid_grant_request_no_json(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest, match="failure"):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest, match="failure"):
             await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -530,7 +530,7 @@ async def test_with_invalid_grant_request_no_json(
 async def test_with_invalid_grant_request_invalid_request_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -547,7 +547,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -564,7 +564,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -581,7 +581,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "invalid_request: desc of the error"
@@ -592,7 +592,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -613,7 +613,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -627,7 +627,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -649,7 +649,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -663,7 +663,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 async def test_with_invalid_grant_request_without_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -681,7 +681,7 @@ async def test_with_invalid_grant_request_without_error(
 
     async with httpx.AsyncClient() as client:
         with pytest.raises(
-            httpx_auth.InvalidGrantRequest, match="{'other': 'other info'}"
+            httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"
         ):
             await client.get("https://authorized_only", auth=auth)
 
@@ -692,7 +692,7 @@ async def test_with_invalid_grant_request_without_error(
 async def test_with_invalid_grant_request_invalid_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -709,7 +709,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -730,7 +730,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
 async def test_with_invalid_grant_request_invalid_grant_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -747,7 +747,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -764,7 +764,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
 async def test_with_invalid_grant_request_unauthorized_client_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -781,7 +781,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -796,7 +796,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
 async def test_with_invalid_grant_request_unsupported_grant_type_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -813,7 +813,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -828,7 +828,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 async def test_with_invalid_grant_request_invalid_scope_error(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -845,7 +845,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -860,7 +860,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
 async def test_with_invalid_token_request_invalid_request_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -871,7 +871,7 @@ async def test_with_invalid_token_request_invalid_request_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -887,7 +887,7 @@ async def test_with_invalid_token_request_invalid_request_error(
 async def test_with_invalid_token_request_invalid_request_error_and_error_description(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -899,7 +899,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
     async with httpx.AsyncClient() as client:
         with pytest.raises(
-            httpx_auth.InvalidGrantRequest, match="invalid_request: desc"
+            httpx2_auth.InvalidGrantRequest, match="invalid_request: desc"
         ):
             await client.get("https://authorized_only", auth=auth)
 
@@ -910,7 +910,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 async def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -921,7 +921,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -937,7 +937,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 async def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -948,7 +948,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -964,7 +964,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 async def test_with_invalid_token_request_unauthorized_client_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -975,7 +975,7 @@ async def test_with_invalid_token_request_unauthorized_client_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -991,7 +991,7 @@ async def test_with_invalid_token_request_unauthorized_client_error(
 async def test_with_invalid_token_request_access_denied_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -1002,7 +1002,7 @@ async def test_with_invalid_token_request_access_denied_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1018,7 +1018,7 @@ async def test_with_invalid_token_request_access_denied_error(
 async def test_with_invalid_token_request_unsupported_response_type_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -1029,7 +1029,7 @@ async def test_with_invalid_token_request_unsupported_response_type_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1045,7 +1045,7 @@ async def test_with_invalid_token_request_unsupported_response_type_error(
 async def test_with_invalid_token_request_invalid_scope_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -1056,7 +1056,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1072,7 +1072,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
 async def test_with_invalid_token_request_server_error_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -1083,7 +1083,7 @@ async def test_with_invalid_token_request_server_error_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1099,7 +1099,7 @@ async def test_with_invalid_token_request_server_error_error(
 async def test_with_invalid_token_request_temporarily_unavailable_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OktaAuthorizationCode(
+    auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
         redirect_uri_port=unused_tcp_port,
@@ -1110,7 +1110,7 @@ async def test_with_invalid_token_request_temporarily_unavailable_error(
     )
 
     async with httpx.AsyncClient() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
     assert (

@@ -1,11 +1,11 @@
 import pytest
 
-import httpx_auth
+import httpx2_auth
 
 
 def test_header_value_must_contains_token():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.WakaTimeAuthorizationCode(
+        httpx2_auth.WakaTimeAuthorizationCode(
             "jPJQV0op6Pu3b66MWDi8b1wD",
             "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
             scope="email",
@@ -16,7 +16,7 @@ def test_header_value_must_contains_token():
 
 def test_empty_scope_is_invalid():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.WakaTimeAuthorizationCode(
+        httpx2_auth.WakaTimeAuthorizationCode(
             "jPJQV0op6Pu3b66MWDi8b1wD",
             "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
             scope="",
@@ -26,7 +26,7 @@ def test_empty_scope_is_invalid():
 
 def test_scope_is_mandatory():
     with pytest.raises(Exception) as exception_info:
-        httpx_auth.WakaTimeAuthorizationCode(
+        httpx2_auth.WakaTimeAuthorizationCode(
             "jPJQV0op6Pu3b66MWDi8b1wD",
             "waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU",
             scope=None,

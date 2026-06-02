@@ -6,8 +6,8 @@ import datetime
 
 import pytest
 
-import httpx_auth
-import httpx_auth._oauth2.authentication_responses_server
+import httpx2_auth
+import httpx2_auth._oauth2.authentication_responses_server
 
 
 def create_token(expiry: Optional[datetime.datetime]) -> str:
@@ -17,9 +17,9 @@ def create_token(expiry: Optional[datetime.datetime]) -> str:
 
 
 @pytest.fixture
-def token_cache() -> httpx_auth.TokenMemoryCache:
-    yield httpx_auth.OAuth2.token_cache
-    httpx_auth.OAuth2.token_cache.clear()
+def token_cache() -> httpx2_auth.TokenMemoryCache:
+    yield httpx2_auth.OAuth2.token_cache
+    httpx2_auth.OAuth2.token_cache.clear()
 
 
 class Tab(threading.Thread):
@@ -115,8 +115,8 @@ p {{
             <p>You can close this tab</p>
         </div>
         <div class="more">
-            <a href="https://colin-b.github.io/httpx_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
-            <a href="https://github.com/Colin-b/httpx_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
+            <a href="https://SemanticMatter.github.io/httpx2_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
+            <a href="https://github.com/SemanticMatter/httpx2_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
         </div>
     </body>
 </html>"""
@@ -196,8 +196,8 @@ p {{
             <p>{information}</p>
         </div>
         <div class="more">
-            <a href="https://colin-b.github.io/httpx_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
-            <a href="https://github.com/Colin-b/httpx_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
+            <a href="https://SemanticMatter.github.io/httpx2_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
+            <a href="https://github.com/SemanticMatter/httpx2_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
         </div>
     </body>
 </html>"""
@@ -224,17 +224,17 @@ p {{
         # Simulate Javascript execution by the browser
         if (
             content
-            == b'<html><body><script>\n        var new_url = window.location.href.replace("#","?");\n        if (new_url.indexOf("?") !== -1) {\n            new_url += "&httpx_auth_redirect=1";\n        } else {\n            new_url += "?httpx_auth_redirect=1";\n        }\n        window.location.replace(new_url)\n        </script></body></html>'
+            == b'<html><body><script>\n        var new_url = window.location.href.replace("#","?");\n        if (new_url.indexOf("?") !== -1) {\n            new_url += "&httpx2_auth_redirect=1";\n        } else {\n            new_url += "?httpx2_auth_redirect=1";\n        }\n        window.location.replace(new_url)\n        </script></body></html>'
         ):
-            content = self._simulate_httpx_auth_redirect()
+            content = self._simulate_httpx2_auth_redirect()
         return content
 
-    def _simulate_httpx_auth_redirect(self) -> bytes:
+    def _simulate_httpx2_auth_redirect(self) -> bytes:
         # Replace fragment by query parameter as requested by Javascript
         reply_url = self.reply_url.replace("#", "?")
         # Add requests_auth_redirect query parameter as requested by Javascript
         reply_url += (
-            "&httpx_auth_redirect=1" if "?" in reply_url else "?httpx_auth_redirect=1"
+            "&httpx2_auth_redirect=1" if "?" in reply_url else "?httpx2_auth_redirect=1"
         )
         return urllib.request.urlopen(reply_url, data=self.data).read()
 
@@ -270,7 +270,7 @@ class BrowserMock:
         displayed_html: Optional[str] = None,
     ) -> Tab:
         """
-        :param opened_url: URL opened by httpx_auth
+        :param opened_url: URL opened by httpx2_auth
         :param reply_url: The URL to send a response to, None to simulate the fact that there is no redirect.
         :param data: Body of the POST response to be sent. None to send a GET request.
         :param displayed_html: Expected success/failure page.
@@ -290,11 +290,11 @@ def browser_mock(monkeypatch) -> BrowserMock:
     mock = BrowserMock()
 
     monkeypatch.setattr(
-        httpx_auth._oauth2.authentication_responses_server.webbrowser,
+        httpx2_auth._oauth2.authentication_responses_server.webbrowser,
         "get",
         lambda *args: mock,
     )
-    monkeypatch.setattr(httpx_auth.OAuth2, "display", httpx_auth.DisplaySettings())
+    monkeypatch.setattr(httpx2_auth.OAuth2, "display", httpx2_auth.DisplaySettings())
 
     yield mock
 
@@ -312,4 +312,4 @@ def token_cache_mock(monkeypatch, token_mock: str):
         def get_token(self, *args, **kwargs) -> str:
             return token_mock
 
-    monkeypatch.setattr(httpx_auth.OAuth2, "token_cache", TokenCacheMock())
+    monkeypatch.setattr(httpx2_auth.OAuth2, "token_cache", TokenCacheMock())

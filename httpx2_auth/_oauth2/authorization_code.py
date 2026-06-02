@@ -1,12 +1,12 @@
 from hashlib import sha512
 from typing import Iterable, Union
 
-import httpx
+import httpx2
 
-from httpx_auth._authentication import SupportMultiAuth
-from httpx_auth._oauth2 import authentication_responses_server
-from httpx_auth._oauth2.browser import BrowserAuth
-from httpx_auth._oauth2.common import (
+from httpx2_auth._authentication import SupportMultiAuth
+from httpx2_auth._oauth2 import authentication_responses_server
+from httpx2_auth._oauth2.browser import BrowserAuth
+from httpx2_auth._oauth2.common import (
     request_new_grant_with_post,
     OAuth2BaseAuth,
     _add_parameters,
@@ -52,7 +52,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
         :param code_field_name: Field name containing the code. code by default.
         :param username: Username in case basic authentication should be used to retrieve token.
         :param password: User password in case basic authentication should be used to retrieve token.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as query parameter
         in the authorization URL and as body parameters in the token URL.
@@ -145,7 +145,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
         # As described in https://tools.ietf.org/html/rfc6749#section-4.1.3
         self.token_data["code"] = code
 
-        client = self.client or httpx.Client()
+        client = self.client or httpx2.Client()
         self._configure_client(client)
         try:
             # As described in https://tools.ietf.org/html/rfc6749#section-4.1.4
@@ -164,7 +164,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
         )
 
     def refresh_token(self, refresh_token: str) -> tuple:
-        client = self.client or httpx.Client()
+        client = self.client or httpx2.Client()
         self._configure_client(client)
         try:
             # As described in https://tools.ietf.org/html/rfc6749#section-6
@@ -181,7 +181,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
                 client.close()
         return self.state, token, expires_in, refresh_token
 
-    def _configure_client(self, client: httpx.Client):
+    def _configure_client(self, client: httpx2.Client):
         client.auth = self.auth
         client.timeout = self.timeout
 
@@ -220,7 +220,7 @@ class OktaAuthorizationCode(OAuth2AuthorizationCode):
         :param header_value: Format used to send the token value.
         "{token}" must be present as it will be replaced by the actual token.
         Token will be sent as "Bearer {token}" by default.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as query parameter
         in the authorization URL.
@@ -276,7 +276,7 @@ class WakaTimeAuthorizationCode(OAuth2AuthorizationCode):
         :param header_value: Format used to send the token value.
         "{token}" must be present as it will be replaced by the actual token.
         Token will be sent as "Bearer {token}" by default.
-        :param client: httpx.Client instance that will be used to request the token.
+        :param client: httpx2.Client instance that will be used to request the token.
         Use it to provide a custom proxying rule for instance.
         :param kwargs: all additional authorization parameters that should be put as query parameter
         in the authorization URL.

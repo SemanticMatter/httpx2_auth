@@ -7,15 +7,15 @@ import jwt
 import pytest
 from pytest_httpx import HTTPXMock
 
-from httpx_auth.testing import BrowserMock, create_token, token_cache, browser_mock
-import httpx_auth
-from httpx_auth._oauth2.tokens import to_expiry
+from httpx2_auth.testing import BrowserMock, create_token, token_cache, browser_mock
+import httpx2_auth
+from httpx2_auth._oauth2.tokens import to_expiry
 
 
 def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_changing(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth1 = httpx_auth.OAuth2Implicit(
+    auth1 = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=custom_token&fake_param=1",
         token_field_name="custom_token",
         redirect_uri_port=unused_tcp_port,
@@ -45,7 +45,7 @@ def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_changing
         datetime.timezone.utc
     ) + datetime.timedelta(hours=1, seconds=1)
 
-    auth2 = httpx_auth.OAuth2Implicit(
+    auth2 = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=custom_token&fake_param=2",
         token_field_name="custom_token",
         redirect_uri_port=unused_tcp_port,
@@ -74,7 +74,7 @@ def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_changing
 def test_oauth2_implicit_flow_uses_redirect_uri_domain(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         redirect_uri_domain="localhost.mycompany.com",
         redirect_uri_port=unused_tcp_port,
@@ -105,10 +105,10 @@ def test_oauth2_implicit_flow_uses_redirect_uri_domain(
 def test_oauth2_implicit_flow_uses_custom_success(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
-    httpx_auth.OAuth2.display.success_html = (
+    httpx2_auth.OAuth2.display.success_html = (
         "<body><div>SUCCESS: {display_time}</div></body>"
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -138,10 +138,10 @@ def test_oauth2_implicit_flow_uses_custom_success(
 def test_oauth2_implicit_flow_uses_custom_failure(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
-    httpx_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
+    httpx2_auth.OAuth2.display.failure_html = "FAILURE: {display_time}\n{information}"
     tab = browser_mock.add_response(
         opened_url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
@@ -149,7 +149,7 @@ def test_oauth2_implicit_flow_uses_custom_failure(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest):
+        with pytest.raises(httpx2_auth.InvalidGrantRequest):
             client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure(
@@ -160,7 +160,7 @@ def test_oauth2_implicit_flow_uses_custom_failure(
 def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth1 = httpx_auth.OAuth2Implicit(
+    auth1 = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=custom_token&nonce=1",
         token_field_name="custom_token",
         redirect_uri_port=unused_tcp_port,
@@ -185,7 +185,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
     with httpx.Client() as client:
         client.get("https://authorized_only", auth=auth1)
 
-    auth2 = httpx_auth.OAuth2Implicit(
+    auth2 = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=custom_token&nonce=2",
         token_field_name="custom_token",
     )
@@ -208,7 +208,7 @@ def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_port(
 ):
     # TODO Should use a method to retrieve a free port instead
     available_port = 5002
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=available_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -237,7 +237,7 @@ def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_port(
 def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -272,7 +272,7 @@ def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_by_defa
 def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     # Add a token that expires in 29 seconds, so should be considered as expired when issuing the request
@@ -311,7 +311,7 @@ def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_default(
 def test_oauth2_implicit_flow_post_token_custom_expiry(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit("https://provide_token", early_expiry=28)
+    auth = httpx2_auth.OAuth2Implicit("https://provide_token", early_expiry=28)
     # Add a token that expires in 29 seconds, so should be considered as not expired when issuing the request
     expiry_in_29_seconds = datetime.datetime.now(
         datetime.timezone.utc
@@ -337,9 +337,9 @@ def test_oauth2_implicit_flow_post_token_custom_expiry(
 def test_browser_opening_failure(
     token_cache, httpx_mock: HTTPXMock, monkeypatch, unused_tcp_port: int
 ):
-    import httpx_auth._oauth2.authentication_responses_server
+    import httpx2_auth._oauth2.authentication_responses_server
 
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         timeout=0.1,
         redirect_uri_port=unused_tcp_port,
@@ -350,7 +350,7 @@ def test_browser_opening_failure(
             return False
 
     monkeypatch.setattr(
-        httpx_auth._oauth2.authentication_responses_server.webbrowser,
+        httpx2_auth._oauth2.authentication_responses_server.webbrowser,
         "get",
         lambda *args: FakeBrowser(),
     )
@@ -361,23 +361,23 @@ def test_browser_opening_failure(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.TimeoutOccurred) as exception_info:
+        with pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
         == "User authentication was not received within 0.1 seconds."
     )
-    assert isinstance(exception_info.value, httpx_auth.HttpxAuthException)
+    assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
     assert isinstance(exception_info.value, httpx.HTTPError)
 
 
 def test_browser_error(
     token_cache, httpx_mock: HTTPXMock, monkeypatch, unused_tcp_port: int
 ):
-    import httpx_auth._oauth2.authentication_responses_server
+    import httpx2_auth._oauth2.authentication_responses_server
 
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         timeout=0.1,
         redirect_uri_port=unused_tcp_port,
@@ -390,7 +390,7 @@ def test_browser_error(
             raise webbrowser.Error("Failure")
 
     monkeypatch.setattr(
-        httpx_auth._oauth2.authentication_responses_server.webbrowser,
+        httpx2_auth._oauth2.authentication_responses_server.webbrowser,
         "get",
         lambda *args: FakeBrowser(),
     )
@@ -400,21 +400,21 @@ def test_browser_error(
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.TimeoutOccurred) as exception_info:
+        with pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
         == "User authentication was not received within 0.1 seconds."
     )
-    assert isinstance(exception_info.value, httpx_auth.HttpxAuthException)
+    assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
     assert isinstance(exception_info.value, httpx.HTTPError)
 
 
 def test_state_change(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -443,7 +443,7 @@ def test_state_change(
 def test_empty_token_is_invalid(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -454,11 +454,11 @@ def test_empty_token_is_invalid(
 
     with httpx.Client() as client:
         with pytest.raises(
-            httpx_auth.InvalidToken, match=" is invalid."
+            httpx2_auth.InvalidToken, match=" is invalid."
         ) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
-    assert isinstance(exception_info.value, httpx_auth.HttpxAuthException)
+    assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
     assert isinstance(exception_info.value, httpx.HTTPError)
     tab.assert_success()
 
@@ -466,7 +466,7 @@ def test_empty_token_is_invalid(
 def test_token_without_expiry_is_invalid(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -476,11 +476,11 @@ def test_token_without_expiry_is_invalid(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.TokenExpiryNotProvided) as exception_info:
+        with pytest.raises(httpx2_auth.TokenExpiryNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "Expiry (exp) is not provided in None."
-    assert isinstance(exception_info.value, httpx_auth.HttpxAuthException)
+    assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
     assert isinstance(exception_info.value, httpx.HTTPError)
     tab.assert_success()
 
@@ -488,7 +488,7 @@ def test_token_without_expiry_is_invalid(
 def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -516,7 +516,7 @@ def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by_defau
 def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         header_name="Bearer",
         header_value="{token}",
@@ -548,7 +548,7 @@ def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
 def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_token_to_be_received_with_this_name(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         response_type="custom_token",
         token_field_name="custom_token",
@@ -580,7 +580,7 @@ def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_token_
 def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_is_id_token(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         response_type="id_token",
         redirect_uri_port=unused_tcp_port,
@@ -611,7 +611,7 @@ def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_is_id_t
 def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_in_url_is_id_token(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=id_token",
         redirect_uri_port=unused_tcp_port,
     )
@@ -641,7 +641,7 @@ def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_in_url_
 def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_by_default(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -670,7 +670,7 @@ def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_by_defa
 def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth1 = httpx_auth.OAuth2Implicit(
+    auth1 = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -693,7 +693,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
     with httpx.Client() as client:
         client.get("https://authorized_only", auth=auth1)
 
-    auth2 = httpx_auth.OAuth2Implicit(
+    auth2 = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
 
@@ -713,7 +713,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
 def test_oauth2_implicit_flow_post_failure_if_token_is_not_provided(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -733,7 +733,7 @@ def test_oauth2_implicit_flow_post_failure_if_token_is_not_provided(
 def test_oauth2_implicit_flow_get_failure_if_token_is_not_provided(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -752,7 +752,7 @@ def test_oauth2_implicit_flow_get_failure_if_token_is_not_provided(
 def test_oauth2_implicit_flow_post_failure_if_state_is_not_provided(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -766,14 +766,14 @@ def test_oauth2_implicit_flow_post_failure_if_state_is_not_provided(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.StateNotProvided) as exception_info:
+        with pytest.raises(httpx2_auth.StateNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
         == f"state not provided within {{'access_token': ['{token}']}}."
     )
-    assert isinstance(exception_info.value, httpx_auth.HttpxAuthException)
+    assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
     assert isinstance(exception_info.value, httpx.HTTPError)
     tab.assert_failure(f"state not provided within {{'access_token': ['{token}']}}.")
 
@@ -781,7 +781,7 @@ def test_oauth2_implicit_flow_post_failure_if_state_is_not_provided(
 def test_oauth2_implicit_flow_get_failure_if_state_is_not_provided(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     expiry_in_1_hour = datetime.datetime.now(
@@ -794,22 +794,22 @@ def test_oauth2_implicit_flow_get_failure_if_state_is_not_provided(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.StateNotProvided) as exception_info:
+        with pytest.raises(httpx2_auth.StateNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
         str(exception_info.value)
-        == f"state not provided within {{'access_token': ['{token}'], 'httpx_auth_redirect': ['1']}}."
+        == f"state not provided within {{'access_token': ['{token}'], 'httpx2_auth_redirect': ['1']}}."
     )
     tab.assert_failure(
-        f"state not provided within {{'access_token': ['{token}'], 'httpx_auth_redirect': ['1']}}."
+        f"state not provided within {{'access_token': ['{token}'], 'httpx2_auth_redirect': ['1']}}."
     )
 
 
 def test_with_invalid_token_request_invalid_request_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -818,7 +818,7 @@ def test_with_invalid_token_request_invalid_request_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -833,7 +833,7 @@ def test_with_invalid_token_request_invalid_request_error(
 def test_with_invalid_token_request_invalid_request_error_and_error_description(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -842,7 +842,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "invalid_request: desc"
@@ -852,7 +852,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
 def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -861,7 +861,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -876,7 +876,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
 def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -885,7 +885,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -900,7 +900,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
 def test_with_invalid_token_request_unauthorized_client_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -909,7 +909,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -924,7 +924,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
 def test_with_invalid_token_request_access_denied_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -933,7 +933,7 @@ def test_with_invalid_token_request_access_denied_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -948,7 +948,7 @@ def test_with_invalid_token_request_access_denied_error(
 def test_with_invalid_token_request_unsupported_response_type_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -957,7 +957,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -972,7 +972,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
 def test_with_invalid_token_request_invalid_scope_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -981,7 +981,7 @@ def test_with_invalid_token_request_invalid_scope_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -996,7 +996,7 @@ def test_with_invalid_token_request_invalid_scope_error(
 def test_with_invalid_token_request_server_error_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -1005,7 +1005,7 @@ def test_with_invalid_token_request_server_error_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1020,7 +1020,7 @@ def test_with_invalid_token_request_server_error_error(
 def test_with_invalid_token_request_temporarily_unavailable_error(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     tab = browser_mock.add_response(
@@ -1029,7 +1029,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.InvalidGrantRequest) as exception_info:
+        with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1044,7 +1044,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
 def test_oauth2_implicit_flow_failure_if_token_is_not_received_within_the_timeout_interval(
     token_cache, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
         timeout=0.1,
         redirect_uri_port=unused_tcp_port,
@@ -1056,7 +1056,7 @@ def test_oauth2_implicit_flow_failure_if_token_is_not_received_within_the_timeou
     )
 
     with httpx.Client() as client:
-        with pytest.raises(httpx_auth.TimeoutOccurred) as exception_info:
+        with pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert (
@@ -1068,7 +1068,7 @@ def test_oauth2_implicit_flow_failure_if_token_is_not_received_within_the_timeou
 def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    auth = httpx_auth.OAuth2Implicit(
+    auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token", redirect_uri_port=unused_tcp_port
     )
     # This token will expires in 100 milliseconds

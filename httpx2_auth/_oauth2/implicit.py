@@ -1,12 +1,10 @@
 import uuid
 from hashlib import sha512
 
-import httpx
-
-from httpx_auth._authentication import SupportMultiAuth
-from httpx_auth._oauth2 import authentication_responses_server
-from httpx_auth._oauth2.browser import BrowserAuth
-from httpx_auth._oauth2.common import (
+from httpx2_auth._authentication import SupportMultiAuth
+from httpx2_auth._oauth2 import authentication_responses_server
+from httpx2_auth._oauth2.browser import BrowserAuth
+from httpx2_auth._oauth2.common import (
     OAuth2BaseAuth,
     _add_parameters,
     _pop_parameter,

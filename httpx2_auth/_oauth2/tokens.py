@@ -7,7 +7,7 @@ import logging
 from pathlib import Path
 from typing import Union, Optional
 
-from httpx_auth._errors import (
+from httpx2_auth._errors import (
     InvalidToken,
     TokenExpiryNotProvided,
     AuthenticationFailed,

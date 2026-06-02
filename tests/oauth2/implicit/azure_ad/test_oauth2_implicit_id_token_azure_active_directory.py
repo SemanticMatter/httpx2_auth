@@ -1,14 +1,14 @@
-import httpx_auth
-import httpx_auth._oauth2.implicit
+import httpx2_auth
+import httpx2_auth._oauth2.implicit
 
 
 def test_corresponding_oauth2_implicit_flow_id_token_instance(monkeypatch):
     monkeypatch.setattr(
-        httpx_auth._oauth2.implicit.uuid,
+        httpx2_auth._oauth2.implicit.uuid,
         "uuid4",
         lambda *args: "27ddfeed4e-854b-4361-8e7a-eab371c9bc91",
     )
-    aad = httpx_auth.AzureActiveDirectoryImplicitIdToken(
+    aad = httpx2_auth.AzureActiveDirectoryImplicitIdToken(
         "45239d18-c68c-4c47-8bdd-ce71ea1d50cd", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
     assert (

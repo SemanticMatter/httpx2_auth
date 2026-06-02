@@ -2,11 +2,11 @@ import abc
 from typing import Callable, Generator, Optional, Union
 from urllib.parse import parse_qs, urlsplit, urlunsplit, urlencode
 
-import httpx
+import httpx2
 
-from httpx_auth._errors import GrantNotProvided, InvalidGrantRequest
-from httpx_auth._oauth2.browser import DisplaySettings
-from httpx_auth._oauth2.tokens import TokenMemoryCache
+from httpx2_auth._errors import GrantNotProvided, InvalidGrantRequest
+from httpx2_auth._oauth2.browser import DisplaySettings
+from httpx2_auth._oauth2.tokens import TokenMemoryCache
 
 
 def _add_parameters(initial_url: str, extra_parameters: dict) -> str:
@@ -57,7 +57,7 @@ def _get_query_parameter(url: str, param_name: str) -> Optional[str]:
     return all_values[0] if all_values else None
 
 
-def _content_from_response(response: httpx.Response) -> dict:
+def _content_from_response(response: httpx2.Response) -> dict:
     content_type = response.headers.get("content-type")
     if content_type == "text/html; charset=utf-8":
         return {
@@ -69,7 +69,7 @@ def _content_from_response(response: httpx.Response) -> dict:
 
 
 def request_new_grant_with_post(
-    url: str, data, grant_name: str, client: httpx.Client
+    url: str, data, grant_name: str, client: httpx2.Client
 ) -> (str, int, str):
     response = client.post(url, data=data)
 
@@ -89,7 +89,7 @@ class OAuth2:
     display = DisplaySettings()
 
 
-class OAuth2BaseAuth(abc.ABC, httpx.Auth):
+class OAuth2BaseAuth(abc.ABC, httpx2.Auth):
     def __init__(
         self,
         state: str,
@@ -108,8 +108,8 @@ class OAuth2BaseAuth(abc.ABC, httpx.Auth):
         self.refresh_token = refresh_token
 
     def auth_flow(
-        self, request: httpx.Request
-    ) -> Generator[httpx.Request, httpx.Response, None]:
+        self, request: httpx2.Request
+    ) -> Generator[httpx2.Request, httpx2.Response, None]:
         token = OAuth2.token_cache.get_token(
             self.state,
             early_expiry=self.early_expiry,
@@ -123,5 +123,5 @@ class OAuth2BaseAuth(abc.ABC, httpx.Auth):
     def request_new_token(self) -> Union[tuple[str, str], tuple[str, str, int]]:
         pass  # pragma: no cover
 
-    def _update_user_request(self, request: httpx.Request, token: str) -> None:
+    def _update_user_request(self, request: httpx2.Request, token: str) -> None:
         request.headers[self.header_name] = self.header_value.format(token=token)

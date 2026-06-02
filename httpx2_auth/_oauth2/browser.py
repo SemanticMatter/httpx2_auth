@@ -92,8 +92,8 @@ p {{
             <p>{information}</p>
         </div>
         <div class="more">
-            <a href="https://colin-b.github.io/httpx_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
-            <a href="https://github.com/Colin-b/httpx_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
+            <a href="https://SemanticMatter.github.io/httpx2_auth/" class="btn" target="_blank" rel="noreferrer noopener" role="button">Documentation</a>
+            <a href="https://github.com/SemanticMatter/httpx2_auth/blob/develop/CHANGELOG.md" class="btn" target="_blank" rel="noreferrer noopener" role="button">Latest changes</a>
         </div>
     </body>
 </html>"""

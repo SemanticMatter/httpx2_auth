@@ -3,12 +3,12 @@ from pytest_httpx import HTTPXMock
 import httpx
 
 
-import httpx_auth
+import httpx2_auth
 
 
 @pytest.mark.asyncio
 async def test_header_api_key_is_sent_in_x_api_key_by_default(httpx_mock: HTTPXMock):
-    auth = httpx_auth.HeaderApiKey("my_provided_api_key")
+    auth = httpx2_auth.HeaderApiKey("my_provided_api_key")
 
     httpx_mock.add_response(
         url="https://authorized_only",
@@ -22,7 +22,7 @@ async def test_header_api_key_is_sent_in_x_api_key_by_default(httpx_mock: HTTPXM
 
 @pytest.mark.asyncio
 async def test_query_api_key_is_sent_in_api_key_by_default(httpx_mock: HTTPXMock):
-    auth = httpx_auth.QueryApiKey("my_provided_api_key")
+    auth = httpx2_auth.QueryApiKey("my_provided_api_key")
 
     httpx_mock.add_response(
         url="https://authorized_only?api_key=my_provided_api_key", method="GET"
@@ -34,7 +34,7 @@ async def test_query_api_key_is_sent_in_api_key_by_default(httpx_mock: HTTPXMock
 
 @pytest.mark.asyncio
 async def test_header_api_key_can_be_sent_in_a_custom_field_name(httpx_mock: HTTPXMock):
-    auth = httpx_auth.HeaderApiKey("my_provided_api_key", "X-API-HEADER-KEY")
+    auth = httpx2_auth.HeaderApiKey("my_provided_api_key", "X-API-HEADER-KEY")
 
     httpx_mock.add_response(
         url="https://authorized_only",
@@ -48,7 +48,7 @@ async def test_header_api_key_can_be_sent_in_a_custom_field_name(httpx_mock: HTT
 
 @pytest.mark.asyncio
 async def test_query_api_key_can_be_sent_in_a_custom_field_name(httpx_mock: HTTPXMock):
-    auth = httpx_auth.QueryApiKey("my_provided_api_key", "X-API-QUERY-KEY")
+    auth = httpx2_auth.QueryApiKey("my_provided_api_key", "X-API-QUERY-KEY")
 
     httpx_mock.add_response(
         url="https://authorized_only?X-API-QUERY-KEY=my_provided_api_key", method="GET"
