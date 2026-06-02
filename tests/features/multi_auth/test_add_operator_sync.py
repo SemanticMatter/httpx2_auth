@@ -1,7 +1,7 @@
 import datetime
 
-import httpx
-from pytest_httpx import HTTPXMock
+import httpx2
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 import httpx2_auth._oauth2.authorization_code_pkce
@@ -22,7 +22,7 @@ def test_basic_and_api_key_authentication_can_be_combined(httpx_mock: HTTPXMock)
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -44,7 +44,7 @@ def test_header_api_key_and_multiple_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -64,7 +64,7 @@ def test_multiple_auth_and_header_api_key_can_be_combined(token_cache, httpx_moc
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -86,7 +86,7 @@ def test_multiple_auth_and_multiple_auth_can_be_combined(token_cache, httpx_mock
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -106,7 +106,7 @@ def test_basic_and_multiple_authentication_can_be_combined(token_cache, httpx_mo
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -126,7 +126,7 @@ def test_query_api_key_and_multiple_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -160,7 +160,7 @@ def test_oauth2_resource_owner_password_and_api_key_authentication_can_be_combin
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -196,7 +196,7 @@ def test_oauth2_resource_owner_password_and_multiple_authentication_can_be_combi
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -230,7 +230,7 @@ def test_oauth2_client_credential_and_api_key_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -266,7 +266,7 @@ def test_oauth2_client_credential_and_multiple_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -307,7 +307,7 @@ def test_oauth2_authorization_code_and_api_key_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -352,7 +352,7 @@ def test_oauth2_authorization_code_and_multiple_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -402,7 +402,7 @@ def test_oauth2_pkce_and_api_key_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -454,7 +454,7 @@ def test_oauth2_pkce_and_multiple_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -487,7 +487,7 @@ def test_oauth2_implicit_and_api_key_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -522,7 +522,7 @@ def test_oauth2_implicit_and_multiple_authentication_can_be_combined(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()

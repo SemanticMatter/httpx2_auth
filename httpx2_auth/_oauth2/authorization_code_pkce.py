@@ -96,7 +96,7 @@ class OAuth2AuthorizationCodePKCE(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth)
             authorization_url_without_nonce, "nonce"
         )
         state = sha512(authorization_url_without_nonce.encode("unicode_escape")).hexdigest()
-        custom_code_parameters = {
+        custom_code_parameters: dict[str, str | list[str]] = {
             "state": state,
             "redirect_uri": self.redirect_uri,
         }
@@ -108,7 +108,7 @@ class OAuth2AuthorizationCodePKCE(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth)
         code_challenge = self.generate_code_challenge(code_verifier)
 
         # add code challenge parameters to the authorization_url request
-        custom_code_parameters["code_challenge"] = code_challenge
+        custom_code_parameters["code_challenge"] = code_challenge.decode("ascii")
         custom_code_parameters["code_challenge_method"] = "S256"
 
         code_grant_url = _add_parameters(authorization_url_without_nonce, custom_code_parameters)
@@ -138,7 +138,7 @@ class OAuth2AuthorizationCodePKCE(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth)
 
     def request_new_token(self) -> tuple:
         # Request code
-        state, code = authentication_responses_server.request_new_grant(self.code_grant_details)
+        _state, code = authentication_responses_server.request_new_grant(self.code_grant_details)
 
         # As described in https://tools.ietf.org/html/rfc6749#section-4.1.3
         self.token_data["code"] = code

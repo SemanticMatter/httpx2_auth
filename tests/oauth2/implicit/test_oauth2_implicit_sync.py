@@ -2,10 +2,10 @@ import datetime
 import json
 import time
 
-import httpx
+import httpx2
 import jwt
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 from httpx2_auth._oauth2.tokens import to_expiry
@@ -35,7 +35,7 @@ def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_changing
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth1)
 
     # Ensure that the new token is different than previous one
@@ -62,7 +62,7 @@ def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_changing
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth2)
 
     tab1.assert_success()
@@ -92,7 +92,7 @@ def test_oauth2_implicit_flow_uses_redirect_uri_domain(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -119,7 +119,7 @@ def test_oauth2_implicit_flow_uses_custom_success(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -136,7 +136,7 @@ def test_oauth2_implicit_flow_uses_custom_failure(
         displayed_html="FAILURE: {display_time}\n{information}",
     )
 
-    with httpx.Client() as client, pytest.raises(httpx2_auth.InvalidGrantRequest):
+    with httpx2.Client() as client, pytest.raises(httpx2_auth.InvalidGrantRequest):
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure(
@@ -167,7 +167,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth1)
 
     auth2 = httpx2_auth.OAuth2Implicit(
@@ -182,7 +182,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
             "Authorization": f"Bearer {token}",
         },
     )
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth2)
 
     tab.assert_success()
@@ -209,7 +209,7 @@ def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_port(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -240,7 +240,7 @@ def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_by_defa
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -275,7 +275,7 @@ def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_default(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -303,7 +303,7 @@ def test_oauth2_implicit_flow_post_token_custom_expiry(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -333,12 +333,12 @@ def test_browser_opening_failure(
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
 
-    with httpx.Client() as client, pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
+    with httpx2.Client() as client, pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
         client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "User authentication was not received within 0.1 seconds."
     assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
 
 
 def test_browser_error(token_cache, httpx_mock: HTTPXMock, monkeypatch, unused_tcp_port: int):
@@ -366,12 +366,12 @@ def test_browser_error(token_cache, httpx_mock: HTTPXMock, monkeypatch, unused_t
         method="GET",
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
-    with httpx.Client() as client, pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
+    with httpx2.Client() as client, pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
         client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "User authentication was not received within 0.1 seconds."
     assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
 
 
 def test_state_change(
@@ -393,7 +393,7 @@ def test_state_change(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -407,12 +407,12 @@ def test_empty_token_is_invalid(token_cache, browser_mock: BrowserMock, unused_t
         data="access_token=&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidToken, match=" is invalid.") as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
     tab.assert_success()
 
 
@@ -426,13 +426,13 @@ def test_token_without_expiry_is_invalid(
         data=f"access_token={create_token(None)}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.TokenExpiryNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "Expiry (exp) is not provided in None."
     assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
     tab.assert_success()
 
 
@@ -454,7 +454,7 @@ def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by_defau
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -484,7 +484,7 @@ def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -514,7 +514,7 @@ def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_token_
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -543,7 +543,7 @@ def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_is_id_t
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -571,7 +571,7 @@ def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_in_url_
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -596,7 +596,7 @@ def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_by_defa
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -621,7 +621,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth1)
 
     auth2 = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
@@ -633,7 +633,7 @@ def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
             "Authorization": f"Bearer {token}",
         },
     )
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth2)
 
     tab.assert_success()
@@ -649,7 +649,7 @@ def test_oauth2_implicit_flow_post_failure_if_token_is_not_provided(
         data="",
     )
 
-    with httpx.Client() as client, pytest.raises(Exception) as exception_info:
+    with httpx2.Client() as client, pytest.raises(Exception) as exception_info:
         client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "access_token not provided within {}."
@@ -665,7 +665,7 @@ def test_oauth2_implicit_flow_get_failure_if_token_is_not_provided(
         reply_url=f"http://localhost:{unused_tcp_port}",
     )
 
-    with httpx.Client() as client, pytest.raises(Exception) as exception_info:
+    with httpx2.Client() as client, pytest.raises(Exception) as exception_info:
         client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "access_token not provided within {}."
@@ -684,7 +684,7 @@ def test_oauth2_implicit_flow_post_failure_if_state_is_not_provided(
         data=f"access_token={token}",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.StateNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -692,7 +692,7 @@ def test_oauth2_implicit_flow_post_failure_if_state_is_not_provided(
         str(exception_info.value) == f"state not provided within {{'access_token': ['{token}']}}."
     )
     assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
     tab.assert_failure(f"state not provided within {{'access_token': ['{token}']}}.")
 
 
@@ -707,7 +707,7 @@ def test_oauth2_implicit_flow_get_failure_if_state_is_not_provided(
         reply_url=f"http://localhost:{unused_tcp_port}#access_token={token}",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.StateNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -729,7 +729,7 @@ def test_with_invalid_token_request_invalid_request_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -751,7 +751,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -768,7 +768,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -788,7 +788,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url&other=test",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -810,7 +810,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unauthorized_client",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -832,7 +832,7 @@ def test_with_invalid_token_request_access_denied_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=access_denied",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -854,7 +854,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unsupported_response_type",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -876,7 +876,7 @@ def test_with_invalid_token_request_invalid_scope_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_scope",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -896,7 +896,7 @@ def test_with_invalid_token_request_server_error_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=server_error",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -918,7 +918,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=temporarily_unavailable",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -945,7 +945,7 @@ def test_oauth2_implicit_flow_failure_if_token_is_not_received_within_the_timeou
         reply_url=None,
     )
 
-    with httpx.Client() as client, pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
+    with httpx2.Client() as client, pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
         client.get("https://authorized_only", auth=auth)
 
     assert str(exception_info.value) == "User authentication was not received within 0.1 seconds."
@@ -973,7 +973,7 @@ def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     # Wait to ensure that the token will be considered as expired
@@ -995,7 +995,7 @@ def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab1.assert_success()

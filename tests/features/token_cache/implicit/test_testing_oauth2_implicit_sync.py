@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 
@@ -21,7 +21,7 @@ def test_oauth2_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -38,7 +38,7 @@ def test_okta_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -55,7 +55,7 @@ def test_aad_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -72,7 +72,7 @@ def test_okta_implicit_id_token_flow(token_cache_mock, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -89,5 +89,5 @@ def test_aad_implicit_id_token_flow(token_cache_mock, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)

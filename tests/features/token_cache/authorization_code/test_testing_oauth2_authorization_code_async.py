@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 
@@ -23,7 +23,7 @@ async def test_oauth2_authorization_code_flow(token_cache_mock, httpx_mock: HTTP
             "Authorization": "Bearer 2YotnFZFEjr1zCsicMWpAA",
         },
     )
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -41,7 +41,7 @@ async def test_okta_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXM
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -59,7 +59,7 @@ async def test_oauth2_authorization_code_pkce_flow(token_cache_mock, httpx_mock:
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -77,5 +77,5 @@ async def test_okta_authorization_code_pkce_flow(token_cache_mock, httpx_mock: H
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)

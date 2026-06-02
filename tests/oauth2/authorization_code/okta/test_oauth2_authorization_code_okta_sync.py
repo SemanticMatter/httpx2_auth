@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 from httpx2_auth._oauth2.tokens import to_expiry
@@ -10,7 +10,7 @@ from httpx2_auth.testing import BrowserMock
 def test_oauth2_authorization_code_flow_uses_provided_client(
     token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
-    client = httpx.Client(headers={"x-test": "Test value"})
+    client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com",
         "54239d18-c68c-4c47-8bdd-ce71ea1d50cd",
@@ -42,7 +42,7 @@ def test_oauth2_authorization_code_flow_uses_provided_client(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -81,7 +81,7 @@ def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -121,7 +121,7 @@ def test_oauth2_authorization_code_flow_uses_custom_success(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -142,7 +142,7 @@ def test_oauth2_authorization_code_flow_uses_custom_failure(
         displayed_html="FAILURE: {display_time}\n{information}",
     )
 
-    with httpx.Client() as client, pytest.raises(httpx2_auth.InvalidGrantRequest):
+    with httpx2.Client() as client, pytest.raises(httpx2_auth.InvalidGrantRequest):
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_failure(
@@ -182,7 +182,7 @@ def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -227,7 +227,7 @@ def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -256,7 +256,7 @@ def test_oauth2_authorization_code_flow_get_code_custom_expiry(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -292,7 +292,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -318,7 +318,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -354,7 +354,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -394,7 +394,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -432,7 +432,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -445,7 +445,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
         },
     )
     # expect Bearer token to remain the same
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -473,7 +473,7 @@ def test_empty_token_is_invalid(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.GrantNotProvided) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -503,7 +503,7 @@ def test_with_invalid_grant_request_no_json(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest, match="failure"):
             client.get("https://authorized_only", auth=auth)
 
@@ -529,7 +529,7 @@ def test_with_invalid_grant_request_invalid_request_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -562,7 +562,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -593,7 +593,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -628,7 +628,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -658,7 +658,7 @@ def test_with_invalid_grant_request_without_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest, match="{'other': 'other info'}"):
             client.get("https://authorized_only", auth=auth)
 
@@ -684,7 +684,7 @@ def test_with_invalid_grant_request_invalid_client_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -721,7 +721,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -754,7 +754,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -785,7 +785,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -816,7 +816,7 @@ def test_with_invalid_grant_request_invalid_scope_error(
         status_code=400,
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -841,7 +841,7 @@ def test_with_invalid_token_request_invalid_request_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -867,7 +867,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest, match="invalid_request: desc"):
             client.get("https://authorized_only", auth=auth)
 
@@ -887,7 +887,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -911,7 +911,7 @@ def test_with_invalid_token_request_invalid_request_error_and_error_description_
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url&other=test",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -937,7 +937,7 @@ def test_with_invalid_token_request_unauthorized_client_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unauthorized_client",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -963,7 +963,7 @@ def test_with_invalid_token_request_access_denied_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=access_denied",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -989,7 +989,7 @@ def test_with_invalid_token_request_unsupported_response_type_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unsupported_response_type",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -1015,7 +1015,7 @@ def test_with_invalid_token_request_invalid_scope_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_scope",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -1039,7 +1039,7 @@ def test_with_invalid_token_request_server_error_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=server_error",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 
@@ -1065,7 +1065,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=temporarily_unavailable",
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             client.get("https://authorized_only", auth=auth)
 

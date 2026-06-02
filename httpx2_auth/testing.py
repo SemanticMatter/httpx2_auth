@@ -1,6 +1,7 @@
 import datetime
 import threading
 import urllib.request
+from collections.abc import Generator
 from urllib.parse import urlsplit
 
 import pytest
@@ -16,7 +17,7 @@ def create_token(expiry: datetime.datetime | None) -> str:
 
 
 @pytest.fixture
-def token_cache() -> httpx2_auth.TokenMemoryCache:
+def token_cache() -> Generator[httpx2_auth.TokenMemoryCache, None, None]:
     yield httpx2_auth.OAuth2.token_cache
     httpx2_auth.OAuth2.token_cache.clear()
 
@@ -32,8 +33,8 @@ class Tab(threading.Thread):
 
     def __init__(
         self,
-        reply_url: str,
-        data: str,
+        reply_url: str | None,
+        data: str | None,
         displayed_html: str | None = None,
     ):
         self.reply_url = reply_url
@@ -198,33 +199,34 @@ p {{
         super().__init__()
 
     def run(self) -> None:
-        if not self.reply_url:
+        reply_url = self.reply_url
+        if not reply_url:
             self.checked = True
             return
 
         # Simulate a browser tab by first requesting a favicon
-        self._request_favicon()
+        self._request_favicon(reply_url)
         # Simulate a browser tab token redirect to the reply URL
-        self.content = self._simulate_redirect().decode()
+        self.content = self._simulate_redirect(reply_url).decode()
 
-    def _request_favicon(self):
-        scheme, netloc, *_ = urlsplit(self.reply_url)
+    def _request_favicon(self, reply_url: str) -> None:
+        scheme, netloc, *_ = urlsplit(reply_url)
         favicon_response = urllib.request.urlopen(f"{scheme}://{netloc}/favicon.ico")
         assert favicon_response.read() == b"Favicon is not provided."
 
-    def _simulate_redirect(self) -> bytes:
-        content = urllib.request.urlopen(self.reply_url, data=self.data).read()
+    def _simulate_redirect(self, reply_url: str) -> bytes:
+        content = urllib.request.urlopen(reply_url, data=self.data).read()
         # Simulate Javascript execution by the browser
         if (
             content
             == b'<html><body><script>\n        var new_url = window.location.href.replace("#","?");\n        if (new_url.indexOf("?") !== -1) {\n            new_url += "&httpx2_auth_redirect=1";\n        } else {\n            new_url += "?httpx2_auth_redirect=1";\n        }\n        window.location.replace(new_url)\n        </script></body></html>'
         ):
-            content = self._simulate_httpx2_auth_redirect()
+            content = self._simulate_httpx2_auth_redirect(reply_url)
         return content
 
-    def _simulate_httpx2_auth_redirect(self) -> bytes:
+    def _simulate_httpx2_auth_redirect(self, reply_url: str) -> bytes:
         # Replace fragment by query parameter as requested by Javascript
-        reply_url = self.reply_url.replace("#", "?")
+        reply_url = reply_url.replace("#", "?")
         # Add requests_auth_redirect query parameter as requested by Javascript
         reply_url += "&httpx2_auth_redirect=1" if "?" in reply_url else "?httpx2_auth_redirect=1"
         return urllib.request.urlopen(reply_url, data=self.data).read()
@@ -277,13 +279,13 @@ class BrowserMock:
 
 
 @pytest.fixture
-def browser_mock(monkeypatch) -> BrowserMock:
+def browser_mock(monkeypatch) -> Generator[BrowserMock, None, None]:
     mock = BrowserMock()
 
     monkeypatch.setattr(
         httpx2_auth._oauth2.authentication_responses_server.webbrowser,
         "get",
-        lambda *args: mock,
+        lambda *_args: mock,
     )
     monkeypatch.setattr(httpx2_auth.OAuth2, "display", httpx2_auth.DisplaySettings())
 
@@ -300,7 +302,7 @@ def token_mock() -> str:
 @pytest.fixture
 def token_cache_mock(monkeypatch, token_mock: str):
     class TokenCacheMock:
-        def get_token(self, *args, **kwargs) -> str:
+        def get_token(self, *_args, **_kwargs) -> str:
             return token_mock
 
     monkeypatch.setattr(httpx2_auth.OAuth2, "token_cache", TokenCacheMock())

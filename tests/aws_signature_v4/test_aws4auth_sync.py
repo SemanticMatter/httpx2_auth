@@ -1,9 +1,9 @@
 import time
 
-import httpx
+import httpx2
 import pytest
 import time_machine
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 
@@ -27,7 +27,7 @@ def test_aws_auth_without_content_in_request(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only", auth=auth)
 
 
@@ -51,7 +51,7 @@ def test_aws_auth_with_content_in_request(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only", json=[{"key": "value"}], auth=auth)
 
 
@@ -78,7 +78,7 @@ def test_aws_auth_with_security_token_and_without_content_in_request(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only", auth=auth)
 
 
@@ -113,7 +113,7 @@ def test_aws_auth_share_security_tokens_between_instances(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only", auth=auth2)
 
 
@@ -141,7 +141,7 @@ def test_aws_auth_includes_custom_x_amz_headers(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only", headers={"X-AmZ-CustoM": "Custom"}, auth=auth)
 
 
@@ -167,7 +167,7 @@ def test_aws_auth_excludes_x_amz_client_context_header(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
             headers={"x-amz-Client-Context": "Custom"},
@@ -202,7 +202,7 @@ def test_aws_auth_allows_to_include_custom_and_default_forbidden_header(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
             headers={"Custom": "Custom", "x-amz-Client-Context": "Context"},
@@ -235,7 +235,7 @@ def test_aws_auth_does_not_strips_header_names(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
             headers={" Custom ": "Custom"},
@@ -269,10 +269,10 @@ def test_aws_auth_header_with_multiple_values(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
-            headers=httpx.Headers(
+            headers=httpx2.Headers(
                 [("Custom", "value2"), ("Custom", "value1"), ("custoM", "value3")]
             ),
             auth=auth,
@@ -306,7 +306,7 @@ def test_aws_auth_header_performances_with_spaces_in_value(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         start = time.perf_counter_ns()
         client.get(
             "https://authorized_only",
@@ -345,7 +345,7 @@ def test_aws_auth_header_performances_without_spaces_in_value(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         start = time.perf_counter_ns()
         client.get(
             "https://authorized_only",
@@ -400,7 +400,7 @@ def test_aws_auth_headers_encoded_values(httpx_mock: HTTPXMock, decoded_value: s
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
             headers={"My-Header1": decoded_value},
@@ -428,7 +428,7 @@ def test_aws_auth_host_header_with_port(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get(
             "https://authorized_only:8443",
             auth=auth,
@@ -457,7 +457,7 @@ def test_aws_auth_with_security_token_and_content_in_request(httpx_mock: HTTPXMo
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only", json=[{"key": "value"}], auth=auth)
 
 
@@ -480,7 +480,7 @@ def test_aws_auth_override_x_amz_date_header(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
             headers={"x-amz-date": "20201011T150505Z"},
@@ -507,7 +507,7 @@ def test_aws_auth_root_path(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only/", auth=auth)
 
 
@@ -530,7 +530,7 @@ def test_aws_auth_query_parameters(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only?id-type=third&id=second*&id=first&id_type=fourth",
             auth=auth,
@@ -556,7 +556,7 @@ def test_aws_auth_query_parameters_with_multiple_values(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only?foo=1&bar=2&bar=3&bar=1", auth=auth)
 
 
@@ -611,7 +611,7 @@ def test_aws_auth_query_parameters_encoded_values(
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             "https://authorized_only",
             params={"foo": decoded_value, "bar": 1},
@@ -638,7 +638,7 @@ def test_aws_auth_query_reserved(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             r'https://authorized_only/?@$%^&+=/,?><`";:\|][{} =@$%^&+=/,?><`";:\|][{}',
             auth=auth,
@@ -664,7 +664,7 @@ def test_aws_auth_query_reserved_with_fragment(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post(
             r'https://authorized_only/?@#$%^&+=/,?><`";:\|][{} =@#$%^&+=/,?><`";:\|][{}',
             auth=auth,
@@ -690,7 +690,7 @@ def test_aws_auth_query_parameters_with_semicolon(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get(
             "https://authorized_only?foo=value;bar=1",
             auth=auth,
@@ -716,7 +716,7 @@ def test_aws_auth_path_normalize(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only/./test/../stuff//more/", auth=auth)
 
 
@@ -739,7 +739,7 @@ def test_aws_auth_path_quoting(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only/test/hello-*.&^~+{}!$£_ ", auth=auth)
 
 
@@ -762,7 +762,7 @@ def test_aws_auth_path_percent_encode_non_s3(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only/test/%2a%2b%25/~-_^& %%", auth=auth)
 
 
@@ -785,7 +785,7 @@ def test_aws_auth_path_percent_encode_s3(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.post("https://authorized_only/test/%2a%2b%25/~-_^& %%", auth=auth)
 
 
@@ -808,5 +808,5 @@ def test_aws_auth_without_path(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)

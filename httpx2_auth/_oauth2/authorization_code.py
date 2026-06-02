@@ -96,7 +96,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
             authorization_url_without_nonce, "nonce"
         )
         state = sha512(authorization_url_without_nonce.encode("unicode_escape")).hexdigest()
-        custom_code_parameters = {
+        custom_code_parameters: dict[str, str | list[str]] = {
             "state": state,
             "redirect_uri": self.redirect_uri,
         }
@@ -132,7 +132,7 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
 
     def request_new_token(self) -> tuple:
         # Request code
-        state, code = authentication_responses_server.request_new_grant(self.code_grant_details)
+        _state, code = authentication_responses_server.request_new_grant(self.code_grant_details)
 
         # As described in https://tools.ietf.org/html/rfc6749#section-4.1.3
         self.token_data["code"] = code
@@ -169,8 +169,10 @@ class OAuth2AuthorizationCode(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
                 client.close()
         return self.state, token, expires_in, refresh_token
 
-    def _configure_client(self, client: httpx2.Client):
-        client.auth = self.auth
+    def _configure_client(self, client: httpx2.Client) -> None:
+        # self.auth may be None (no client credentials); httpx2 accepts None at
+        # runtime even though its setter is typed as AuthTypes only.
+        client.auth = self.auth  # type: ignore[assignment]
         client.timeout = self.timeout
 
 

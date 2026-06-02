@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 from httpx2_auth._oauth2.tokens import to_expiry
@@ -11,7 +11,7 @@ async def test_okta_client_credentials_flow_uses_provided_client(
     token_cache, httpx_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
-    client = httpx.Client(headers={"x-test": "Test value"})
+    client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OktaClientCredentials(
         "test_okta",
         client_id="test_user",
@@ -40,7 +40,7 @@ async def test_okta_client_credentials_flow_uses_provided_client(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -71,7 +71,7 @@ async def test_okta_client_credentials_flow_token_is_sent_in_authorization_heade
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -84,7 +84,7 @@ async def test_okta_client_credentials_flow_token_is_expired_after_30_seconds_by
     )
     # Add a token that expires in 29 seconds, so should be considered as expired when issuing the request
     token_cache._add_token(
-        key="73cb07a6e48774ad335f5bae75e036d1df813a3c44ae186895eb6f956b9993ed83590871dddefbc2310b863cda3f414161bc7fcd4c4e5fefa582cba4f7de7ace",
+        key="18889021f8cfa6b3874b3add7c3961b09d78d9afd2eb4c33343959c786a5cad375928fbcbe2f048935a697e2c2cbf3636d4f476b531bf1ec6f239809caaf892c",
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
@@ -109,7 +109,7 @@ async def test_okta_client_credentials_flow_token_is_expired_after_30_seconds_by
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -124,7 +124,7 @@ async def test_okta_client_credentials_flow_token_custom_expiry(token_cache, htt
     )
     # Add a token that expires in 29 seconds, so should be considered as not expired when issuing the request
     token_cache._add_token(
-        key="73cb07a6e48774ad335f5bae75e036d1df813a3c44ae186895eb6f956b9993ed83590871dddefbc2310b863cda3f414161bc7fcd4c4e5fefa582cba4f7de7ace",
+        key="18889021f8cfa6b3874b3add7c3961b09d78d9afd2eb4c33343959c786a5cad375928fbcbe2f048935a697e2c2cbf3636d4f476b531bf1ec6f239809caaf892c",
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
@@ -136,7 +136,7 @@ async def test_okta_client_credentials_flow_token_custom_expiry(token_cache, htt
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -165,7 +165,7 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -213,7 +213,7 @@ async def test_handle_credentials_as_part_of_cache_key(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
 
     httpx_mock.add_response(
@@ -237,7 +237,7 @@ async def test_handle_credentials_as_part_of_cache_key(
     )
 
     # This should request a new token (different credentials)
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth2)
 
     httpx_mock.add_response(
@@ -255,6 +255,6 @@ async def test_handle_credentials_as_part_of_cache_key(
         },
     )
     # Ensure the proper token is fetched
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
         await client.get("https://authorized_only", auth=auth2)

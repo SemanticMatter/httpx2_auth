@@ -1,8 +1,8 @@
 import datetime
 
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 import httpx2_auth._oauth2.authorization_code_pkce
@@ -24,7 +24,7 @@ async def test_basic_and_api_key_authentication_can_be_combined(httpx_mock: HTTP
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -47,7 +47,7 @@ async def test_header_api_key_and_multiple_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -68,7 +68,7 @@ async def test_multiple_auth_and_header_api_key_can_be_combined(token_cache, htt
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -91,7 +91,7 @@ async def test_multiple_auth_and_multiple_auth_can_be_combined(token_cache, http
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -114,7 +114,7 @@ async def test_basic_and_multiple_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -135,7 +135,7 @@ async def test_query_api_key_and_multiple_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -170,7 +170,7 @@ async def test_oauth2_resource_owner_password_and_api_key_authentication_can_be_
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -207,7 +207,7 @@ async def test_oauth2_resource_owner_password_and_multiple_authentication_can_be
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -242,7 +242,7 @@ async def test_oauth2_client_credential_and_api_key_authentication_can_be_combin
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -279,7 +279,7 @@ async def test_oauth2_client_credential_and_multiple_authentication_can_be_combi
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -321,7 +321,7 @@ async def test_oauth2_authorization_code_and_api_key_authentication_can_be_combi
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -367,7 +367,7 @@ async def test_oauth2_authorization_code_and_multiple_authentication_can_be_comb
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -418,7 +418,7 @@ async def test_oauth2_pkce_and_api_key_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -471,7 +471,7 @@ async def test_oauth2_pkce_and_multiple_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -505,7 +505,7 @@ async def test_oauth2_implicit_and_api_key_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -541,7 +541,7 @@ async def test_oauth2_implicit_and_multiple_authentication_can_be_combined(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()

@@ -82,7 +82,10 @@ class OAuth2Implicit(OAuth2BaseAuth, SupportMultiAuth, BrowserAuth):
             authorization_url_without_nonce, "nonce"
         )
         state = sha512(authorization_url_without_nonce.encode("unicode_escape")).hexdigest()
-        custom_parameters = {"state": state, "redirect_uri": self.redirect_uri}
+        custom_parameters: dict[str, str | list[str]] = {
+            "state": state,
+            "redirect_uri": self.redirect_uri,
+        }
         if nonce:
             custom_parameters["nonce"] = nonce
         grant_url = _add_parameters(authorization_url_without_nonce, custom_parameters)

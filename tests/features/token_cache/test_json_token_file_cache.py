@@ -2,7 +2,7 @@ import datetime
 import logging
 import pathlib
 
-import httpx
+import httpx2
 import jwt
 import pytest
 
@@ -68,7 +68,7 @@ def test_save_bearer_token_exception_handling(token_cache, tmp_path, monkeypatch
         same_cache.get_token("key1")
     assert str(exception_info.value) == "User was not authenticated."
     assert isinstance(exception_info.value, httpx2_auth.HttpxAuthException)
-    assert isinstance(exception_info.value, httpx.HTTPError)
+    assert isinstance(exception_info.value, httpx2.HTTPError)
 
     assert caplog.messages == [
         "Cannot save tokens.",

@@ -115,9 +115,9 @@ p {{
         self,
         *,
         success_display_time: int = 1,
-        success_html: str = None,
+        success_html: str | None = None,
         failure_display_time: int = 10_000,
-        failure_html: str = None,
+        failure_html: str | None = None,
     ):
         """
         :param success_display_time: In case a code/token is successfully received,

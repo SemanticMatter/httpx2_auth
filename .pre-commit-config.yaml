@@ -54,7 +54,8 @@ repos:
     hooks:
       - id: bandit
         args: ["-c", "pyproject.toml", "-r"]
-        exclude: ^tests/.*$
+        # testing.py is a test-support module (browser/HTTP-server mocks); exempt like tests/.
+        exclude: ^(tests/.*|httpx2_auth/testing\.py)$
         additional_dependencies: ["bandit[toml]"]
 
   # mypy — static type checking (strict; config in [tool.mypy]). Runs in its own
@@ -64,7 +65,5 @@ repos:
     hooks:
       - id: mypy
         exclude: ^tests/.*$
-        # additional_dependencies:
-        #   - "fastapi>=0.136.3,<1"
-        #   - "pydantic>=2,<3"
-        #   - "pydantic-settings>=2,<3"
+        additional_dependencies:
+          - "httpx2~=2.3"

@@ -31,7 +31,7 @@ def _add_parameters(initial_url: str, extra_parameters: dict) -> str:
     return urlunsplit((scheme, netloc, path, new_query_string, fragment))
 
 
-def _pop_parameter(url: str, query_parameter_name: str) -> (str, str | None):
+def _pop_parameter(url: str, query_parameter_name: str) -> tuple[str, list[str] | None]:
     """
     Remove and return parameter of an URL.
 
@@ -51,8 +51,7 @@ def _pop_parameter(url: str, query_parameter_name: str) -> (str, str | None):
 
 
 def _get_query_parameter(url: str, param_name: str) -> str | None:
-    scheme, netloc, path, query_string, fragment = urlsplit(url)
-    query_params = parse_qs(query_string)
+    query_params = parse_qs(urlsplit(url).query)
     all_values = query_params.get(param_name)
     return all_values[0] if all_values else None
 
@@ -70,7 +69,7 @@ def _content_from_response(response: httpx2.Response) -> dict:
 
 def request_new_grant_with_post(
     url: str, data, grant_name: str, client: httpx2.Client
-) -> (str, int, str):
+) -> tuple[str, int, str]:
     response = client.post(url, data=data)
 
     if response.is_error:
@@ -81,7 +80,9 @@ def request_new_grant_with_post(
     token = content.get(grant_name)
     if not token:
         raise GrantNotProvided(grant_name, content)
-    return token, content.get("expires_in"), content.get("refresh_token")
+    # Values are decoded from an untyped JSON/form response; the OAuth2 token
+    # endpoint guarantees the (token, expires_in, refresh_token) shape here.
+    return token, content.get("expires_in"), content.get("refresh_token")  # type: ignore[return-value]
 
 
 class OAuth2:

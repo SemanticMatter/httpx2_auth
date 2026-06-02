@@ -40,6 +40,11 @@ repository = "https://github.com/SemanticMatter/httpx2_auth"
 changelog = "https://github.com/SemanticMatter/httpx2_auth/blob/master/CHANGELOG.md"
 issues = "https://github.com/SemanticMatter/httpx2_auth/issues"
 
+# Expose the testing fixtures (token_cache, browser_mock, ...) as a pytest plugin
+# so they are auto-registered both for this project's tests and for downstream users.
+[project.entry-points.pytest11]
+httpx2_auth = "httpx2_auth.testing"
+
 [project.optional-dependencies]
 testing = [
     # Used to mock httpx2
@@ -67,8 +72,11 @@ minversion = "9"
 addopts = "-rs --cov=httpx2_auth --cov-report=term-missing:skip-covered --no-cov-on-fail"
 filterwarnings = [
     "error",
+    # Test tokens are signed with short HMAC keys on purpose; the key length is
+    # irrelevant to what these tests verify.
+    "ignore::jwt.warnings.InsecureKeyLengthWarning",
 ]
-log_level = "DEBUG"
+log_level = "WARNING"
 asyncio_mode = "auto"
 asyncio_default_fixture_loop_scope = "function"
 
@@ -113,11 +121,18 @@ ignore = [
   "PLR",  # pylint refactor codes
 ]
 
-# [tool.ruff.lint.extend-per-file-ignores]
-# # FastAPI route signatures may use call-expressions in defaults (Depends(...)).
-# "src/deploy_pet/routes/**" = ["B008"]
-# # Tests: tuple-style parametrize names and unused-by-design fixture arguments.
-# "tests/**" = ["PT006", "ARG001", "ARG002"]
+[tool.ruff.lint.extend-per-file-ignores]
+# Tests rely on patterns the linter flags but that are idiomatic for pytest.
+"tests/**" = [
+  "ARG001",  # Fixtures are injected by name and not always referenced in the body.
+  "ARG002",  # Mock/stub methods mirror the real signatures they replace.
+  "ARG005",  # Mock lambdas mirror the real callables they replace.
+  "PT006",   # parametrize names are given as a single comma-separated string.
+  "PT007",   # parametrize rows are given as lists rather than tuples.
+  "PT011",   # pytest.raises(Exception) is paired with an explicit message assertion.
+  "RUF043",  # raises match= values are literal strings, not regular expressions.
+  "SIM117",  # Nested `with` (client + pytest.raises) reads clearly in tests.
+]
 
 # --- Type checking (mypy) ---------------------------------------------------
 # Strict (deploy-pet's own baseline) plus the pydantic plugin from the stack's

@@ -3,10 +3,10 @@ import json
 import time
 import typing
 
-import httpx
+import httpx2
 import jwt
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 from httpx2_auth._oauth2.tokens import to_expiry
@@ -40,7 +40,7 @@ async def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_ch
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
 
     # Ensure that the new token is different than previous one
@@ -67,7 +67,7 @@ async def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_ch
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth2)
 
     tab1.assert_success()
@@ -98,7 +98,7 @@ async def test_oauth2_implicit_flow_uses_redirect_uri_domain(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -129,7 +129,7 @@ async def test_oauth2_implicit_flow_uses_custom_success(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -150,7 +150,7 @@ async def test_oauth2_implicit_flow_uses_custom_failure(
         displayed_html="FAILURE: {display_time}\n{information}",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest):
             await client.get("https://authorized_only", auth=auth)
 
@@ -183,7 +183,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
 
     auth2 = httpx2_auth.OAuth2Implicit(
@@ -198,7 +198,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
             "Authorization": f"Bearer {token}",
         },
     )
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth2)
 
     tab.assert_success()
@@ -224,7 +224,7 @@ async def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_po
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -256,7 +256,7 @@ async def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_b
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -292,7 +292,7 @@ async def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_de
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -321,7 +321,7 @@ async def test_oauth2_implicit_flow_post_token_custom_expiry(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -350,7 +350,7 @@ async def test_browser_opening_failure(
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -381,7 +381,7 @@ async def test_browser_error(token_cache, httpx_mock: HTTPXMock, monkeypatch, un
         method="GET",
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -408,7 +408,7 @@ async def test_state_change(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -423,7 +423,7 @@ async def test_empty_token_is_invalid(token_cache, browser_mock: BrowserMock, un
         data="access_token=&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidToken, match=" is invalid."):
             await client.get("https://authorized_only", auth=auth)
 
@@ -441,7 +441,7 @@ async def test_token_without_expiry_is_invalid(
         data=f"access_token={create_token(None)}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.TokenExpiryNotProvided) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -468,7 +468,7 @@ async def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -499,7 +499,7 @@ async def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -530,7 +530,7 @@ async def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -560,7 +560,7 @@ async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_i
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -589,7 +589,7 @@ async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_i
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -615,7 +615,7 @@ async def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_b
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab.assert_success()
@@ -641,7 +641,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
 
     auth2 = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
@@ -653,7 +653,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
             "Authorization": f"Bearer {token}",
         },
     )
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth2)
 
     tab.assert_success()
@@ -670,7 +670,7 @@ async def test_oauth2_implicit_flow_post_failure_if_token_is_not_provided(
         data="",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(Exception) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -688,7 +688,7 @@ async def test_oauth2_implicit_flow_get_failure_if_token_is_not_provided(
         reply_url=f"http://localhost:{unused_tcp_port}",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(Exception) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -709,7 +709,7 @@ async def test_oauth2_implicit_flow_post_failure_if_state_is_not_provided(
         data=f"access_token={token}",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.StateNotProvided) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -731,7 +731,7 @@ async def test_oauth2_implicit_flow_get_failure_if_state_is_not_provided(
         reply_url=f"http://localhost:{unused_tcp_port}#access_token={token}",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.StateNotProvided) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -754,7 +754,7 @@ async def test_with_invalid_token_request_invalid_request_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -777,7 +777,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -795,7 +795,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -816,7 +816,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_request&error_description=desc&error_uri=https://test_url&other=test",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -839,7 +839,7 @@ async def test_with_invalid_token_request_unauthorized_client_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unauthorized_client",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -862,7 +862,7 @@ async def test_with_invalid_token_request_access_denied_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=access_denied",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -885,7 +885,7 @@ async def test_with_invalid_token_request_unsupported_response_type_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=unsupported_response_type",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -908,7 +908,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=invalid_scope",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -929,7 +929,7 @@ async def test_with_invalid_token_request_server_error_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=server_error",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -952,7 +952,7 @@ async def test_with_invalid_token_request_temporarily_unavailable_error(
         reply_url=f"http://localhost:{unused_tcp_port}#error=temporarily_unavailable",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -978,7 +978,7 @@ async def test_oauth2_implicit_flow_failure_if_token_is_not_received_within_the_
         reply_url=None,
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.TimeoutOccurred) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -1008,7 +1008,7 @@ async def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     # Wait to ensure that the token will be considered as expired
@@ -1030,7 +1030,7 @@ async def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     tab1.assert_success()

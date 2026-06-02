@@ -44,7 +44,7 @@ class SupportMultiAuth:
 class HeaderApiKey(httpx2.Auth, SupportMultiAuth):
     """Describes an API Key requests authentication."""
 
-    def __init__(self, api_key: str, header_name: str = None):
+    def __init__(self, api_key: str, header_name: str | None = None):
         """
         :param api_key: The API key that will be sent.
         :param header_name: Name of the header field. "X-API-Key" by default.
@@ -64,7 +64,7 @@ class HeaderApiKey(httpx2.Auth, SupportMultiAuth):
 class QueryApiKey(httpx2.Auth, SupportMultiAuth):
     """Describes an API Key requests authentication."""
 
-    def __init__(self, api_key: str, query_parameter_name: str = None):
+    def __init__(self, api_key: str, query_parameter_name: str | None = None):
         """
         :param api_key: The API key that will be sent.
         :param query_parameter_name: Name of the query parameter. "api_key" by default.

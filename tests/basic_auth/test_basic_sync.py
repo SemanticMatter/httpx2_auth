@@ -1,5 +1,5 @@
-import httpx
-from pytest_httpx import HTTPXMock
+import httpx2
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 
@@ -15,5 +15,5 @@ def test_basic_authentication_send_authorization_header(httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)

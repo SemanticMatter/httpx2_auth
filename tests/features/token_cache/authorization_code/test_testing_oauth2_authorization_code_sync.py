@@ -1,6 +1,6 @@
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 
@@ -23,7 +23,7 @@ def test_oauth2_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXMock)
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -40,7 +40,7 @@ def test_okta_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXMock):
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -57,7 +57,7 @@ def test_oauth2_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPX
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)
 
 
@@ -74,5 +74,5 @@ def test_okta_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPXMo
         },
     )
 
-    with httpx.Client() as client:
+    with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth)

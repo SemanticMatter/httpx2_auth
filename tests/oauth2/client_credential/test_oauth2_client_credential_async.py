@@ -1,8 +1,8 @@
 import time
 
-import httpx
+import httpx2
 import pytest
-from pytest_httpx import HTTPXMock
+from pytest_httpx2 import HTTPXMock
 
 import httpx2_auth
 from httpx2_auth._oauth2.tokens import to_expiry
@@ -13,7 +13,7 @@ async def test_oauth2_client_credentials_flow_uses_provided_client(
     token_cache, httpx_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
-    client = httpx.Client(headers={"x-test": "Test value"})
+    client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token",
         client_id="test_user",
@@ -41,7 +41,7 @@ async def test_oauth2_client_credentials_flow_uses_provided_client(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -50,7 +50,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
     token_cache, httpx_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
-    client = httpx.Client(headers={"x-test": "Test value"})
+    client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token",
         client_id="test_user",
@@ -78,7 +78,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
     time.sleep(2)
@@ -103,7 +103,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
             "Authorization": "Bearer 2YotnFZFEjr1zCsicMWpAA",
         },
     )
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -134,7 +134,7 @@ async def test_oauth2_client_credentials_flow_token_is_sent_in_authorization_hea
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -147,7 +147,7 @@ async def test_oauth2_client_credentials_flow_token_is_expired_after_30_seconds_
     )
     # Add a token that expires in 29 seconds, so should be considered as expired when issuing the request
     token_cache._add_token(
-        key="fcd9be12271843a292d3c87c6051ea3dd54ee66d4938d15ebda9c7492d51fe555064fa9f787d0fb207a76558ae33e57ac11cb7aee668d665db9c6c1d60c5c314",
+        key="e0862ac4c79bf9398d4317129bbfd069bbb7408e5cb92cfa0f80b4219fd259ee259179d28862a9c7fa24d1d5cd18abeca31b580e6d37d9102b98d314b480c0d3",
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
@@ -172,7 +172,7 @@ async def test_oauth2_client_credentials_flow_token_is_expired_after_30_seconds_
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -188,7 +188,7 @@ async def test_oauth2_client_credentials_flow_token_custom_expiry(
     )
     # Add a token that expires in 29 seconds, so should be considered as not expired when issuing the request
     token_cache._add_token(
-        key="fcd9be12271843a292d3c87c6051ea3dd54ee66d4938d15ebda9c7492d51fe555064fa9f787d0fb207a76558ae33e57ac11cb7aee668d665db9c6c1d60c5c314",
+        key="e0862ac4c79bf9398d4317129bbfd069bbb7408e5cb92cfa0f80b4219fd259ee259179d28862a9c7fa24d1d5cd18abeca31b580e6d37d9102b98d314b480c0d3",
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
@@ -200,7 +200,7 @@ async def test_oauth2_client_credentials_flow_token_custom_expiry(
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -229,7 +229,7 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
 
@@ -245,7 +245,7 @@ async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPX
         status_code=400,
         match_content=b"grant_type=client_credentials",
     )
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest, match="failure"):
             await client.get("https://authorized_only", auth=auth)
 
@@ -263,7 +263,7 @@ async def test_with_invalid_grant_request_invalid_request_error(token_cache, htt
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -291,7 +291,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -317,7 +317,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -347,7 +347,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -370,7 +370,7 @@ async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock:
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -390,7 +390,7 @@ async def test_with_invalid_grant_request_invalid_client_error(token_cache, http
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -420,7 +420,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -448,7 +448,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -474,7 +474,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -498,7 +498,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx
         match_content=b"grant_type=client_credentials",
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         with pytest.raises(httpx2_auth.InvalidGrantRequest) as exception_info:
             await client.get("https://authorized_only", auth=auth)
 
@@ -557,7 +557,7 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
         },
     )
 
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
 
     httpx_mock.add_response(
@@ -581,7 +581,7 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
     )
 
     # This should request a new token (different credentials)
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth2)
 
     httpx_mock.add_response(
@@ -599,6 +599,6 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
         },
     )
     # Ensure the proper token is fetched
-    async with httpx.AsyncClient() as client:
+    async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
         await client.get("https://authorized_only", auth=auth2)

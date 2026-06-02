@@ -171,7 +171,7 @@ def canonical_and_signed_headers(
         if (header or "*") in include_headers or (
             header.startswith("x-amz-")
             # x-amz-client-context break mobile analytics auth if included
-            and not header == "x-amz-client-context"
+            and header != "x-amz-client-context"
         ):
             included_headers[header] = header_value.strip()
 
