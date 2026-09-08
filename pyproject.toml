@@ -48,7 +48,7 @@ httpx2_auth = "httpx2_auth.testing"
 [project.optional-dependencies]
 testing = [
     # Used to mock httpx2
-    "httpx2-pytest~=1.0",
+    "httpx2-pytest>=1,<3",
     # Used to generate test tokens
     "pyjwt~=2.13",
     "pytest~=9.0",
