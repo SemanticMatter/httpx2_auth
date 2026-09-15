@@ -10,7 +10,7 @@ from httpx2_auth.testing import BrowserMock
 
 
 def test_oauth2_authorization_code_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2AuthorizationCode(
@@ -23,7 +23,7 @@ def test_oauth2_authorization_code_flow_uses_provided_client(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -36,7 +36,7 @@ def test_oauth2_authorization_code_flow_uses_provided_client(
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -51,7 +51,7 @@ def test_oauth2_authorization_code_flow_uses_provided_client(
 
 
 def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -63,7 +63,7 @@ def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -76,7 +76,7 @@ def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -91,7 +91,7 @@ def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
 
 def test_oauth2_authorization_code_flow_uses_custom_success(
     token_cache,
-    httpx_mock: HTTPXMock,
+    httpx2_mock: HTTPXMock,
     browser_mock: BrowserMock,
     monkeypatch,
     unused_tcp_port: int,
@@ -107,7 +107,7 @@ def test_oauth2_authorization_code_flow_uses_custom_success(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
         displayed_html="<body><div>SUCCESS: {display_time}</div></body>",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -119,7 +119,7 @@ def test_oauth2_authorization_code_flow_uses_custom_success(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -161,7 +161,7 @@ def test_with_invalid_request_error_uses_custom_failure(
 
 
 def test_oauth2_authorization_code_flow_is_able_to_reuse_client(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2AuthorizationCode(
@@ -174,7 +174,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -187,7 +187,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client(
         match_headers={"x-test": "Test value"},
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -204,7 +204,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -217,7 +217,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client(
         match_headers={"x-test": "Test value"},
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -232,7 +232,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client(
 
 
 def test_oauth2_authorization_code_flow_is_able_to_reuse_client_with_token_refresh(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2AuthorizationCode(
@@ -245,7 +245,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client_with_token_refre
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -259,7 +259,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client_with_token_refre
         match_headers={"x-test": "Test value"},
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -274,7 +274,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client_with_token_refre
     time.sleep(2)
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -287,7 +287,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client_with_token_refre
         match_content=b"grant_type=refresh_token&response_type=code&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA",
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -300,7 +300,7 @@ def test_oauth2_authorization_code_flow_is_able_to_reuse_client_with_token_refre
 
 
 def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -311,7 +311,7 @@ def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -323,7 +323,7 @@ def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -338,7 +338,7 @@ def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header
 
 
 def test_oauth2_authorization_code_flow_token_as_html(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -349,13 +349,13 @@ def test_oauth2_authorization_code_flow_token_as_html(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         html="access_token=2YotnFZFEjr1zCsicMWpAA&token_type=example&expires_in=3600&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -370,7 +370,7 @@ def test_oauth2_authorization_code_flow_token_as_html(
 
 
 def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -388,7 +388,7 @@ def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -400,7 +400,7 @@ def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -415,7 +415,7 @@ def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_
 
 
 def test_oauth2_authorization_code_flow_get_code_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code", "https://provide_access_token", early_expiry=28
@@ -426,7 +426,7 @@ def test_oauth2_authorization_code_flow_get_code_custom_expiry(
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -439,7 +439,7 @@ def test_oauth2_authorization_code_flow_get_code_custom_expiry(
 
 
 def test_oauth2_authorization_code_flow_refresh_token(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -451,7 +451,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -463,7 +463,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -477,7 +477,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -489,7 +489,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
         },
         match_content=b"grant_type=refresh_token&response_type=code&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -502,7 +502,7 @@ def test_oauth2_authorization_code_flow_refresh_token(
 
 
 def test_oauth2_authorization_code_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -514,7 +514,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -526,7 +526,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -540,7 +540,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request"},
@@ -554,7 +554,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -566,7 +566,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -581,7 +581,7 @@ def test_oauth2_authorization_code_flow_refresh_token_invalid(
 
 
 def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -593,7 +593,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -605,7 +605,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -618,7 +618,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
 
     tab.assert_success()
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -631,7 +631,7 @@ def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
 
 
 def test_empty_token_is_invalid(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -642,7 +642,7 @@ def test_empty_token_is_invalid(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -668,7 +668,7 @@ def test_empty_token_is_invalid(
 
 
 def test_with_invalid_grant_request_no_json(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -679,7 +679,7 @@ def test_with_invalid_grant_request_no_json(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         text="failure",
@@ -694,7 +694,7 @@ def test_with_invalid_grant_request_no_json(
 
 
 def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -705,7 +705,7 @@ def test_with_invalid_grant_request_invalid_request_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request"},
@@ -727,7 +727,7 @@ def test_with_invalid_grant_request_invalid_request_error(
 
 
 def test_with_invalid_grant_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -738,7 +738,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request", "error_description": "desc of the error"},
@@ -754,7 +754,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description(
 
 
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -765,7 +765,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -788,7 +788,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 
 
 def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -799,7 +799,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -823,7 +823,7 @@ def test_with_invalid_grant_request_invalid_request_error_and_error_description_
 
 
 def test_with_invalid_grant_request_without_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -834,7 +834,7 @@ def test_with_invalid_grant_request_without_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"other": "other info"},
@@ -849,7 +849,7 @@ def test_with_invalid_grant_request_without_error(
 
 
 def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -860,7 +860,7 @@ def test_with_invalid_grant_request_invalid_client_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_client"},
@@ -886,7 +886,7 @@ def test_with_invalid_grant_request_invalid_client_error(
 
 
 def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -897,7 +897,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_grant"},
@@ -919,7 +919,7 @@ def test_with_invalid_grant_request_invalid_grant_error(
 
 
 def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -930,7 +930,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "unauthorized_client"},
@@ -950,7 +950,7 @@ def test_with_invalid_grant_request_unauthorized_client_error(
 
 
 def test_with_invalid_grant_request_unsupported_grant_type_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -961,7 +961,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "unsupported_grant_type"},
@@ -981,7 +981,7 @@ def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 
 def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code",
@@ -992,7 +992,7 @@ def test_with_invalid_grant_request_invalid_scope_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_scope"},
@@ -1262,7 +1262,7 @@ def test_with_invalid_token_request_temporarily_unavailable_error(
 
 
 def test_nonce_is_sent_if_provided_in_authorization_url(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code?nonce=123456",
@@ -1273,7 +1273,7 @@ def test_nonce_is_sent_if_provided_in_authorization_url(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -1285,7 +1285,7 @@ def test_nonce_is_sent_if_provided_in_authorization_url(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -1300,7 +1300,7 @@ def test_nonce_is_sent_if_provided_in_authorization_url(
 
 
 def test_response_type_can_be_provided_in_url(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code?response_type=my_code",
@@ -1312,7 +1312,7 @@ def test_response_type_can_be_provided_in_url(
         opened_url=f"https://provide_code?response_type=my_code&state=5defbae6aaa3054ba94783c34108866c3a348b94225bdd3df193ab640b24d56ab2e2ca314b913e6745d4d2e4ae410d3b851f2c5ac307de408571aceeca60b0a9&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5defbae6aaa3054ba94783c34108866c3a348b94225bdd3df193ab640b24d56ab2e2ca314b913e6745d4d2e4ae410d3b851f2c5ac307de408571aceeca60b0a9",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -1324,7 +1324,7 @@ def test_response_type_can_be_provided_in_url(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

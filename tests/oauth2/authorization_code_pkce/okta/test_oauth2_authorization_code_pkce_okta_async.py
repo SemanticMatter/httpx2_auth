@@ -9,7 +9,7 @@ from httpx2_auth.testing import BrowserMock
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
@@ -22,7 +22,7 @@ async def test_oauth2_pkce_flow_uses_provided_client(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -35,7 +35,7 @@ async def test_oauth2_pkce_flow_uses_provided_client(
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -51,7 +51,7 @@ async def test_oauth2_pkce_flow_uses_provided_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -63,7 +63,7 @@ async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -75,7 +75,7 @@ async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -91,7 +91,7 @@ async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_custom_success(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -104,7 +104,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
         displayed_html="<body><div>SUCCESS: {display_time}</div></body>",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -116,7 +116,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -132,7 +132,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_custom_failure(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -157,7 +157,7 @@ async def test_oauth2_pkce_flow_uses_custom_failure(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -168,7 +168,7 @@ async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_defa
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -180,7 +180,7 @@ async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_defa
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -196,7 +196,7 @@ async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_defa
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -214,7 +214,7 @@ async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -226,7 +226,7 @@ async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -242,7 +242,7 @@ async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_get_code_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -255,7 +255,7 @@ async def test_oauth2_pkce_flow_get_code_custom_expiry(
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -269,7 +269,7 @@ async def test_oauth2_pkce_flow_get_code_custom_expiry(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -280,7 +280,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -292,7 +292,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -306,7 +306,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -318,7 +318,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         },
         match_content=b"grant_type=refresh_token&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -332,7 +332,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -343,7 +343,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -355,7 +355,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -369,7 +369,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_request"},
@@ -382,7 +382,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -395,7 +395,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -411,7 +411,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -422,7 +422,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -434,7 +434,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -447,7 +447,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 
     tab.assert_success()
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -461,7 +461,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 
 @pytest.mark.asyncio
 async def test_expires_in_sent_as_str(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -472,7 +472,7 @@ async def test_expires_in_sent_as_str(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -484,7 +484,7 @@ async def test_expires_in_sent_as_str(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -500,7 +500,7 @@ async def test_expires_in_sent_as_str(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_no_json(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -511,7 +511,7 @@ async def test_with_invalid_grant_request_no_json(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         text="failure",
@@ -527,7 +527,7 @@ async def test_with_invalid_grant_request_no_json(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -538,7 +538,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_request"},
@@ -561,7 +561,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -572,7 +572,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_request", "error_description": "desc of the error"},
@@ -589,7 +589,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -600,7 +600,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -624,7 +624,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -635,7 +635,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -660,7 +660,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_without_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -671,7 +671,7 @@ async def test_with_invalid_grant_request_without_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"other": "other info"},
@@ -687,7 +687,7 @@ async def test_with_invalid_grant_request_without_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -698,7 +698,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_client"},
@@ -725,7 +725,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -736,7 +736,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_grant"},
@@ -759,7 +759,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -770,7 +770,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "unauthorized_client"},
@@ -791,7 +791,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unsupported_grant_type_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -802,7 +802,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "unsupported_grant_type"},
@@ -823,7 +823,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -834,7 +834,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
         opened_url=f"https://testserver.okta-emea.com/oauth2/default/v1/authorize?client_id=54239d18-c68c-4c47-8bdd-ce71ea1d50cd&scope=openid&response_type=code&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5264d11c8b268ccf911ce564ca42fd75cea68c4a3c1ec3ac1ab20243891ab7cd5250ad4c2d002017c6e8ac2ba34954293baa5e0e4fd00bb9ffd4a39c45f1960b",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_scope"},
@@ -855,7 +855,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -882,7 +882,7 @@ async def test_with_invalid_token_request_invalid_request_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -904,7 +904,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -929,7 +929,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -956,7 +956,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -983,7 +983,7 @@ async def test_with_invalid_token_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_access_denied_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -1010,7 +1010,7 @@ async def test_with_invalid_token_request_access_denied_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_unsupported_response_type_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -1037,7 +1037,7 @@ async def test_with_invalid_token_request_unsupported_response_type_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -1062,7 +1062,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_server_error_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",
@@ -1089,7 +1089,7 @@ async def test_with_invalid_token_request_server_error_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_temporarily_unavailable_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com",

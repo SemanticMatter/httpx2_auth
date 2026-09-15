@@ -10,7 +10,7 @@ from httpx2_auth._oauth2.tokens import to_expiry
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
     client = httpx2.Client(headers={"x-test": "Test value"})
@@ -22,7 +22,7 @@ async def test_oauth2_password_credentials_flow_uses_provided_client(
         client_secret="test_pwd2",
         client=client,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -38,7 +38,7 @@ async def test_oauth2_password_credentials_flow_uses_provided_client(
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -52,7 +52,7 @@ async def test_oauth2_password_credentials_flow_uses_provided_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
     client = httpx2.Client(headers={"x-test": "Test value"})
@@ -64,7 +64,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
         client_secret="test_pwd2",
         client=client,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -79,7 +79,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -92,7 +92,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
 
     time.sleep(2)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -107,7 +107,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -120,7 +120,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_token_refresh(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
     client = httpx2.Client(headers={"x-test": "Test value"})
@@ -132,7 +132,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_tok
         client_secret="test_pwd2",
         client=client,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -148,7 +148,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_tok
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -161,7 +161,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_tok
 
     time.sleep(2)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -177,7 +177,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_tok
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -191,7 +191,7 @@ async def test_oauth2_password_credentials_flow_is_able_to_reuse_client_with_tok
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_token_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -200,7 +200,7 @@ async def test_oauth2_password_credentials_flow_token_is_sent_in_authorization_h
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -213,7 +213,7 @@ async def test_oauth2_password_credentials_flow_token_is_sent_in_authorization_h
         match_content=b"grant_type=password&username=test_user&password=test_pwd&scope=openid",
         match_headers={"Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI="},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -227,7 +227,7 @@ async def test_oauth2_password_credentials_flow_token_is_sent_in_authorization_h
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_token_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -243,7 +243,7 @@ async def test_oauth2_password_credentials_flow_token_is_expired_after_30_second
         expiry=to_expiry(expires_in=29),
     )
     # Meaning a new one will be requested
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -256,7 +256,7 @@ async def test_oauth2_password_credentials_flow_token_is_expired_after_30_second
         match_content=b"grant_type=password&username=test_user&password=test_pwd&scope=openid",
         match_headers={"Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI="},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -270,7 +270,7 @@ async def test_oauth2_password_credentials_flow_token_is_expired_after_30_second
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_token_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -286,7 +286,7 @@ async def test_oauth2_password_credentials_flow_token_custom_expiry(
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -299,7 +299,7 @@ async def test_oauth2_password_credentials_flow_token_custom_expiry(
 
 
 @pytest.mark.asyncio
-async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx_mock: HTTPXMock):
+async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -307,7 +307,7 @@ async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -322,7 +322,7 @@ async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -334,7 +334,7 @@ async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx
         await client.get("https://authorized_only", auth=auth)
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -349,7 +349,7 @@ async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -363,7 +363,7 @@ async def test_oauth2_password_credentials_flow_refresh_token(token_cache, httpx
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -372,7 +372,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_invalid(
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -387,7 +387,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_invalid(
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -399,7 +399,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_invalid(
         await client.get("https://authorized_only", auth=auth)
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_request"},
@@ -409,7 +409,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_invalid(
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -425,7 +425,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_invalid(
         },
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -439,7 +439,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_invalid(
 
 @pytest.mark.asyncio
 async def test_oauth2_password_credentials_flow_refresh_token_access_token_not_expired(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -448,7 +448,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_access_token_not_e
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -463,7 +463,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_access_token_not_e
             "Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI=",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -474,7 +474,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_access_token_not_e
     async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -487,7 +487,7 @@ async def test_oauth2_password_credentials_flow_refresh_token_access_token_not_e
 
 
 @pytest.mark.asyncio
-async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
+async def test_expires_in_sent_as_str(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -495,7 +495,7 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -508,7 +508,7 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         match_content=b"grant_type=password&username=test_user&password=test_pwd&scope=openid",
         match_headers={"Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI="},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -521,7 +521,7 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
 
 
 @pytest.mark.asyncio
-async def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx_mock: HTTPXMock):
+async def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -530,7 +530,7 @@ async def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx_mock:
         client_secret="test_pwd2",
         scope="my_scope+my_other_scope",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -543,7 +543,7 @@ async def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx_mock:
         match_content=b"grant_type=password&username=test_user&password=test_pwd&scope=my_scope%2Bmy_other_scope",
         match_headers={"Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI="},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -556,7 +556,7 @@ async def test_scope_is_sent_as_is_when_provided_as_str(token_cache, httpx_mock:
 
 
 @pytest.mark.asyncio
-async def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx_mock: HTTPXMock):
+async def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -565,7 +565,7 @@ async def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx_moc
         client_secret="test_pwd2",
         scope=["my_scope", "my_other_scope"],
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -578,7 +578,7 @@ async def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx_moc
         match_content=b"grant_type=password&username=test_user&password=test_pwd&scope=my_scope+my_other_scope",
         match_headers={"Authorization": "Basic dGVzdF91c2VyMjp0ZXN0X3B3ZDI="},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -591,7 +591,7 @@ async def test_scope_is_sent_as_str_when_provided_as_list(token_cache, httpx_moc
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_no_json(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -599,7 +599,7 @@ async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPX
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         text="failure",
@@ -612,7 +612,9 @@ async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPX
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_request_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_request_error(
+    token_cache, httpx2_mock: HTTPXMock
+):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -620,7 +622,7 @@ async def test_with_invalid_grant_request_invalid_request_error(token_cache, htt
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_request"},
@@ -642,7 +644,7 @@ async def test_with_invalid_grant_request_invalid_request_error(token_cache, htt
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -651,7 +653,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_request", "error_description": "desc of the error"},
@@ -667,7 +669,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -676,7 +678,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -699,7 +701,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -708,7 +710,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={
@@ -731,7 +733,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_without_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -739,7 +741,7 @@ async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock:
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"other": "other info"},
@@ -754,7 +756,7 @@ async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock:
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -762,7 +764,7 @@ async def test_with_invalid_grant_request_invalid_client_error(token_cache, http
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_client"},
@@ -787,7 +789,7 @@ async def test_with_invalid_grant_request_invalid_client_error(token_cache, http
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -795,7 +797,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_grant"},
@@ -817,7 +819,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -826,7 +828,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "unauthorized_client"},
@@ -846,7 +848,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unsupported_grant_type_error(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
@@ -855,7 +857,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "unsupported_grant_type"},
@@ -874,7 +876,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -882,7 +884,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx
         client_id="test_user2",
         client_secret="test_pwd2",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={"error": "invalid_scope"},
@@ -901,7 +903,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx
 
 
 @pytest.mark.asyncio
-async def test_without_expected_token(token_cache, httpx_mock: HTTPXMock):
+async def test_without_expected_token(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaResourceOwnerPasswordCredentials(
         "testserver.okta-emea.com",
         username="test_user",
@@ -910,7 +912,7 @@ async def test_without_expected_token(token_cache, httpx_mock: HTTPXMock):
         client_secret="test_pwd2",
         token_field_name="not_provided",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://testserver.okta-emea.com/oauth2/default/v1/token",
         json={

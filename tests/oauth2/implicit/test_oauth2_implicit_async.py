@@ -16,7 +16,7 @@ from httpx2_auth.testing import BrowserMock, create_token
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_changing(
     token_cache,
-    httpx_mock: HTTPXMock,
+    httpx2_mock: HTTPXMock,
     browser_mock: BrowserMock,
     unused_tcp_port_factory: typing.Callable[[], int],
 ):
@@ -32,7 +32,7 @@ async def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_ch
         reply_url=f"http://localhost:{auth1.redirect_uri_port}",
         data=f"custom_token={first_token}&state=fc65632abc93fbf8fede279fb6405912f18e05e5e7042b9d92e711f341b8a71efede90865c5fb38f0f11735e9923c0dccdf173be81acf61955f873d4a6e28fdb",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -59,7 +59,7 @@ async def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_ch
         reply_url=f"http://localhost:{auth2.redirect_uri_port}",
         data=f"custom_token={second_token}&state=91db107a8c3b8043302186936dd11ecc35049dc78b28d3642a62ba350e0a3e3b673d98b2820226bee5f3eca9633bd61825253cc7efe641bf9ad81bdae4d7adc9",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -76,7 +76,7 @@ async def test_oauth2_implicit_flow_token_is_not_reused_if_a_url_parameter_is_ch
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_uses_redirect_uri_domain(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
@@ -90,7 +90,7 @@ async def test_oauth2_implicit_flow_uses_redirect_uri_domain(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -106,7 +106,7 @@ async def test_oauth2_implicit_flow_uses_redirect_uri_domain(
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_uses_custom_success(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
@@ -121,7 +121,7 @@ async def test_oauth2_implicit_flow_uses_custom_success(
         displayed_html="<body><div>SUCCESS: {display_time}</div></body>",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -137,7 +137,7 @@ async def test_oauth2_implicit_flow_uses_custom_success(
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_uses_custom_failure(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
@@ -161,7 +161,7 @@ async def test_oauth2_implicit_flow_uses_custom_failure(
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth1 = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=custom_token&nonce=1",
@@ -175,7 +175,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"custom_token={token}&state=da5ed86c8443102b3d318731e35c51a9d7d3fc8ab5ccfc138531399803c4d8f72268347e85db8b8953c8d5c97039af70f924fd0cb075e0c5876f7502d4e8ff79",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -191,7 +191,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
         token_field_name="custom_token",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -206,7 +206,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_only_nonce_differs(
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_port(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
@@ -216,7 +216,7 @@ async def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_po
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -232,7 +232,7 @@ async def test_oauth2_implicit_flow_token_can_be_requested_on_a_custom_server_po
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
@@ -248,7 +248,7 @@ async def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_b
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -264,7 +264,7 @@ async def test_oauth2_implicit_flow_post_token_is_sent_in_authorization_header_b
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     # Add a token that expires in 29 seconds, so should be considered as expired when issuing the request
@@ -284,7 +284,7 @@ async def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_de
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -300,7 +300,7 @@ async def test_oauth2_implicit_flow_post_token_is_expired_after_30_seconds_by_de
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_post_token_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", early_expiry=28)
     # Add a token that expires in 29 seconds, so should be considered as not expired when issuing the request
@@ -313,7 +313,7 @@ async def test_oauth2_implicit_flow_post_token_custom_expiry(
         token=create_token(expiry_in_29_seconds),
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -327,7 +327,7 @@ async def test_oauth2_implicit_flow_post_token_custom_expiry(
 
 @pytest.mark.asyncio
 async def test_browser_opening_failure(
-    token_cache, httpx_mock: HTTPXMock, monkeypatch, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, monkeypatch, unused_tcp_port: int
 ):
     import httpx2_auth._oauth2.authentication_responses_server
 
@@ -345,7 +345,7 @@ async def test_browser_opening_failure(
         lambda *args: FakeBrowser(),
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="GET",
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
@@ -358,7 +358,9 @@ async def test_browser_opening_failure(
 
 
 @pytest.mark.asyncio
-async def test_browser_error(token_cache, httpx_mock: HTTPXMock, monkeypatch, unused_tcp_port: int):
+async def test_browser_error(
+    token_cache, httpx2_mock: HTTPXMock, monkeypatch, unused_tcp_port: int
+):
     import httpx2_auth._oauth2.authentication_responses_server
 
     auth = httpx2_auth.OAuth2Implicit(
@@ -377,7 +379,7 @@ async def test_browser_error(token_cache, httpx_mock: HTTPXMock, monkeypatch, un
         lambda *args: FakeBrowser(),
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="GET",
         url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
     )
@@ -390,7 +392,7 @@ async def test_browser_error(token_cache, httpx_mock: HTTPXMock, monkeypatch, un
 
 @pytest.mark.asyncio
 async def test_state_change(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
@@ -400,7 +402,7 @@ async def test_state_change(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=123456",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -451,7 +453,7 @@ async def test_token_without_expiry_is_invalid(
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
@@ -460,7 +462,7 @@ async def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by
         opened_url=f"https://provide_token?response_type=token&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -476,7 +478,7 @@ async def test_oauth2_implicit_flow_get_token_is_sent_in_authorization_header_by
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
@@ -491,7 +493,7 @@ async def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -507,7 +509,7 @@ async def test_oauth2_implicit_flow_token_is_sent_in_requested_field(
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_token_to_be_received_with_this_name(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
@@ -522,7 +524,7 @@ async def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"custom_token={token}&state=da5ed86c8443102b3d318731e35c51a9d7d3fc8ab5ccfc138531399803c4d8f72268347e85db8b8953c8d5c97039af70f924fd0cb075e0c5876f7502d4e8ff79",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -538,7 +540,7 @@ async def test_oauth2_implicit_flow_can_send_a_custom_response_type_and_expects_
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_is_id_token(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token",
@@ -552,7 +554,7 @@ async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_i
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"id_token={token}&state=4b7a43e14ff4940a513dba46a736b62890e0a568f3342412cecfa968af823feae7b3c56cd2ecf07d533df3990cdc7436b3c090f27e6fde42813a3c6510e077d9",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -568,7 +570,7 @@ async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_i
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_in_url_is_id_token(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit(
         "https://provide_token?response_type=id_token",
@@ -581,7 +583,7 @@ async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_i
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"id_token={token}&state=4b7a43e14ff4940a513dba46a736b62890e0a568f3342412cecfa968af823feae7b3c56cd2ecf07d533df3990cdc7436b3c090f27e6fde42813a3c6510e077d9",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -597,7 +599,7 @@ async def test_oauth2_implicit_flow_expects_token_in_id_token_if_response_type_i
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
@@ -607,7 +609,7 @@ async def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_b
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -623,7 +625,7 @@ async def test_oauth2_implicit_flow_expects_token_to_be_stored_in_access_token_b
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth1 = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     expiry_in_1_hour = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=1)
@@ -633,7 +635,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -646,7 +648,7 @@ async def test_oauth2_implicit_flow_token_is_reused_if_not_expired(
 
     auth2 = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -987,7 +989,7 @@ async def test_oauth2_implicit_flow_failure_if_token_is_not_received_within_the_
 
 @pytest.mark.asyncio
 async def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token", redirect_uri_port=unused_tcp_port)
     # This token will expires in 100 milliseconds
@@ -1000,7 +1002,7 @@ async def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={first_token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -1022,7 +1024,7 @@ async def test_oauth2_implicit_flow_token_is_requested_again_if_expired(
         reply_url=f"http://localhost:{unused_tcp_port}",
         data=f"access_token={second_token}&state=bee505cb6ceb14b9f6ac3573cd700b3b3e965004078d7bb57c7b92df01e448c992a7a46b4804164fc998ea166ece3f3d5849ca2405c4a548f43b915b0677231c",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

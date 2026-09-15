@@ -10,7 +10,7 @@ from httpx2_auth._oauth2.tokens import to_expiry
 
 @pytest.mark.asyncio
 async def test_oauth2_client_credentials_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
     client = httpx2.Client(headers={"x-test": "Test value"})
@@ -20,7 +20,7 @@ async def test_oauth2_client_credentials_flow_uses_provided_client(
         client_secret="test_pwd",
         client=client,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -33,7 +33,7 @@ async def test_oauth2_client_credentials_flow_uses_provided_client(
         match_headers={"x-test": "Test value"},
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -47,7 +47,7 @@ async def test_oauth2_client_credentials_flow_uses_provided_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     # TODO Add support for AsyncClient
     client = httpx2.Client(headers={"x-test": "Test value"})
@@ -57,7 +57,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
         client_secret="test_pwd",
         client=client,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -70,7 +70,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
         match_headers={"x-test": "Test value"},
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -83,7 +83,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
 
     time.sleep(2)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -96,7 +96,7 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
         match_headers={"x-test": "Test value"},
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -109,12 +109,12 @@ async def test_oauth2_client_credentials_flow_is_able_to_reuse_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_client_credentials_flow_token_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -126,7 +126,7 @@ async def test_oauth2_client_credentials_flow_token_is_sent_in_authorization_hea
         },
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -140,7 +140,7 @@ async def test_oauth2_client_credentials_flow_token_is_sent_in_authorization_hea
 
 @pytest.mark.asyncio
 async def test_oauth2_client_credentials_flow_token_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
@@ -152,7 +152,7 @@ async def test_oauth2_client_credentials_flow_token_is_expired_after_30_seconds_
         expiry=to_expiry(expires_in=29),
     )
     # Meaning a new one will be requested
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -164,7 +164,7 @@ async def test_oauth2_client_credentials_flow_token_is_expired_after_30_seconds_
         },
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -178,7 +178,7 @@ async def test_oauth2_client_credentials_flow_token_is_expired_after_30_seconds_
 
 @pytest.mark.asyncio
 async def test_oauth2_client_credentials_flow_token_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token",
@@ -192,7 +192,7 @@ async def test_oauth2_client_credentials_flow_token_custom_expiry(
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -205,11 +205,11 @@ async def test_oauth2_client_credentials_flow_token_custom_expiry(
 
 
 @pytest.mark.asyncio
-async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
+async def test_expires_in_sent_as_str(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -221,7 +221,7 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         },
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -234,11 +234,11 @@ async def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_no_json(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         text="failure",
@@ -251,11 +251,13 @@ async def test_with_invalid_grant_request_no_json(token_cache, httpx_mock: HTTPX
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_request_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_request_error(
+    token_cache, httpx2_mock: HTTPXMock
+):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request"},
@@ -278,12 +280,12 @@ async def test_with_invalid_grant_request_invalid_request_error(token_cache, htt
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request", "error_description": "desc of the error"},
@@ -300,12 +302,12 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -329,12 +331,12 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -358,11 +360,11 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_without_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"other": "other info"},
@@ -378,11 +380,11 @@ async def test_with_invalid_grant_request_without_error(token_cache, httpx_mock:
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_client_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_client"},
@@ -408,11 +410,11 @@ async def test_with_invalid_grant_request_invalid_client_error(token_cache, http
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_grant"},
@@ -435,12 +437,12 @@ async def test_with_invalid_grant_request_invalid_grant_error(token_cache, httpx
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "unauthorized_client"},
@@ -461,12 +463,12 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unsupported_grant_type_error(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "unsupported_grant_type"},
@@ -486,11 +488,11 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 
 @pytest.mark.asyncio
-async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx_mock: HTTPXMock):
+async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2ClientCredentials(
         "https://provide_access_token", client_id="test_user", client_secret="test_pwd"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_scope"},
@@ -521,7 +523,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(token_cache, httpx
 @pytest.mark.asyncio
 async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cache_key(
     token_cache,
-    httpx_mock: HTTPXMock,
+    httpx2_mock: HTTPXMock,
     client_id1,
     client_secret1,
     client_id2,
@@ -537,7 +539,7 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
         client_id=client_id2,
         client_secret=client_secret2,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -549,7 +551,7 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
         },
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -560,7 +562,7 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
     async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth1)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -572,7 +574,7 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
         },
         match_content=b"grant_type=client_credentials",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -584,14 +586,14 @@ async def test_oauth2_client_credentials_flow_handle_credentials_as_part_of_cach
     async with httpx2.AsyncClient() as client:
         await client.get("https://authorized_only", auth=auth2)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
             "Authorization": "Bearer 2YotnFZFEjr1zCsicMWpAA",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
