@@ -9,7 +9,7 @@ from httpx2_auth.testing import BrowserMock
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -23,14 +23,14 @@ async def test_oauth2_authorization_code_flow_uses_provided_client(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -46,7 +46,7 @@ async def test_oauth2_authorization_code_flow_uses_provided_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -60,13 +60,13 @@ async def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -82,7 +82,7 @@ async def test_oauth2_authorization_code_flow_uses_redirect_uri_domain(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_uses_custom_success(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -97,13 +97,13 @@ async def test_oauth2_authorization_code_flow_uses_custom_success(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
         displayed_html="<body><div>SUCCESS: {display_time}</div></body>",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -119,7 +119,7 @@ async def test_oauth2_authorization_code_flow_uses_custom_success(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_uses_custom_failure(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -146,7 +146,7 @@ async def test_oauth2_authorization_code_flow_uses_custom_failure(
 
 @pytest.mark.asyncio
 async def test_multiple_scopes_are_comma_separated(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -159,13 +159,13 @@ async def test_multiple_scopes_are_comma_separated(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email%2Cread_stats&response_type=code&state=34f21f9ea8be7b1dfd3dd1673a9aea7c3a1737228b4f08bc11ebacb88449afaa658811f8022e9962927a0ec42805c0e3cc5e6b0d9185308216b298a686001a1f&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=34f21f9ea8be7b1dfd3dd1673a9aea7c3a1737228b4f08bc11ebacb88449afaa658811f8022e9962927a0ec42805c0e3cc5e6b0d9185308216b298a686001a1f",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email%2Cread_stats&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -181,7 +181,7 @@ async def test_multiple_scopes_are_comma_separated(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -195,13 +195,13 @@ async def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -217,7 +217,7 @@ async def test_oauth2_authorization_code_flow_get_code_is_sent_in_authorization_
 
 @pytest.mark.asyncio
 async def test_json_response_is_handled_even_if_unused(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -231,7 +231,7 @@ async def test_json_response_is_handled_even_if_unused(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={
@@ -244,7 +244,7 @@ async def test_json_response_is_handled_even_if_unused(
         },
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -260,7 +260,7 @@ async def test_json_response_is_handled_even_if_unused(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -281,13 +281,13 @@ async def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_secon
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -303,7 +303,7 @@ async def test_oauth2_authorization_code_flow_get_code_is_expired_after_30_secon
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_get_code_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -318,7 +318,7 @@ async def test_oauth2_authorization_code_flow_get_code_custom_expiry(
         token="waka_tok_12345",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -332,7 +332,7 @@ async def test_oauth2_authorization_code_flow_get_code_custom_expiry(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -346,13 +346,13 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=0&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -366,13 +366,13 @@ async def test_oauth2_authorization_code_flow_refresh_token(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_67890&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=b"grant_type=refresh_token&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&refresh_token=waka_ref_12345",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -386,7 +386,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -400,13 +400,13 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=0&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -420,7 +420,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="error=invalid_request",
@@ -433,14 +433,14 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=0&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -456,7 +456,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -470,13 +470,13 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=waka_tok_12345&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
         match_content=f"grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -489,7 +489,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 
     tab.assert_success()
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -503,7 +503,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 
 @pytest.mark.asyncio
 async def test_empty_token_is_invalid(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -517,7 +517,7 @@ async def test_empty_token_is_invalid(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         html="access_token=&token_type=bearer&expires_in=3600&refresh_token=waka_ref_12345&scope=email&example_parameter=example_value",
@@ -537,7 +537,7 @@ async def test_empty_token_is_invalid(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_no_json(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -551,7 +551,7 @@ async def test_with_invalid_grant_request_no_json(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         text="failure",
@@ -567,7 +567,7 @@ async def test_with_invalid_grant_request_no_json(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -581,7 +581,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "invalid_request"},
@@ -604,7 +604,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -618,7 +618,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "invalid_request", "error_description": "desc of the error"},
@@ -635,7 +635,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -649,7 +649,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={
@@ -673,7 +673,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -687,7 +687,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={
@@ -712,7 +712,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_without_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -726,7 +726,7 @@ async def test_with_invalid_grant_request_without_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"other": "other info"},
@@ -742,7 +742,7 @@ async def test_with_invalid_grant_request_without_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -756,7 +756,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "invalid_client"},
@@ -783,7 +783,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -797,7 +797,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "invalid_grant"},
@@ -820,7 +820,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -834,7 +834,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "unauthorized_client"},
@@ -855,7 +855,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unsupported_grant_type_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -869,7 +869,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "unsupported_grant_type"},
@@ -890,7 +890,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
 
     auth = httpx2_auth.WakaTimeAuthorizationCode(
@@ -904,7 +904,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
         opened_url=f"https://wakatime.com/oauth/authorize?client_id=jPJQV0op6Pu3b66MWDi8b1wD&client_secret=waka_sec_0c4MBGeR9LN74LzV5uelF9SgeQ32CqfeWpIuieneBbsL57dAAlqqJWDiVDJOlsSx61pVwHMKlsb3uMvU&scope=email&response_type=code&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=5d0adb208bdbecaf5cfb6de0bf4ba0aea52986f3fc5ea7bc30c4b2db449c17e5c9d15f9a3926476cdaf1c72e9f73c7cfdc624dde0187c38d8c6b04532770df2a",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://wakatime.com/oauth/token",
         json={"error": "invalid_scope"},

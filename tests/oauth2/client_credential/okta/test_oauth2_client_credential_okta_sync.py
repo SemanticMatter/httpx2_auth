@@ -6,7 +6,7 @@ import httpx2_auth
 from httpx2_auth._oauth2.tokens import to_expiry
 
 
-def test_okta_client_credentials_flow_uses_provided_client(token_cache, httpx_mock: HTTPXMock):
+def test_okta_client_credentials_flow_uses_provided_client(token_cache, httpx2_mock: HTTPXMock):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OktaClientCredentials(
         "test_okta",
@@ -15,7 +15,7 @@ def test_okta_client_credentials_flow_uses_provided_client(token_cache, httpx_mo
         scope="dummy",
         client=client,
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://test_okta/oauth2/default/v1/token",
         json={
@@ -28,7 +28,7 @@ def test_okta_client_credentials_flow_uses_provided_client(token_cache, httpx_mo
         match_headers={"x-test": "Test value"},
         match_content=b"grant_type=client_credentials&scope=dummy",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -41,12 +41,12 @@ def test_okta_client_credentials_flow_uses_provided_client(token_cache, httpx_mo
 
 
 def test_okta_client_credentials_flow_token_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaClientCredentials(
         "test_okta", client_id="test_user", client_secret="test_pwd", scope="dummy"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://test_okta/oauth2/default/v1/token",
         json={
@@ -58,7 +58,7 @@ def test_okta_client_credentials_flow_token_is_sent_in_authorization_header_by_d
         },
         match_content=b"grant_type=client_credentials&scope=dummy",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -71,7 +71,7 @@ def test_okta_client_credentials_flow_token_is_sent_in_authorization_header_by_d
 
 
 def test_okta_client_credentials_flow_token_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock
+    token_cache, httpx2_mock: HTTPXMock
 ):
     auth = httpx2_auth.OktaClientCredentials(
         "test_okta", client_id="test_user", client_secret="test_pwd", scope="dummy"
@@ -83,7 +83,7 @@ def test_okta_client_credentials_flow_token_is_expired_after_30_seconds_by_defau
         expiry=to_expiry(expires_in=29),
     )
     # Meaning a new one will be requested
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://test_okta/oauth2/default/v1/token",
         json={
@@ -95,7 +95,7 @@ def test_okta_client_credentials_flow_token_is_expired_after_30_seconds_by_defau
         },
         match_content=b"grant_type=client_credentials&scope=dummy",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -107,7 +107,7 @@ def test_okta_client_credentials_flow_token_is_expired_after_30_seconds_by_defau
         client.get("https://authorized_only", auth=auth)
 
 
-def test_okta_client_credentials_flow_token_custom_expiry(token_cache, httpx_mock: HTTPXMock):
+def test_okta_client_credentials_flow_token_custom_expiry(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaClientCredentials(
         "test_okta",
         client_id="test_user",
@@ -121,7 +121,7 @@ def test_okta_client_credentials_flow_token_custom_expiry(token_cache, httpx_moc
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -133,11 +133,11 @@ def test_okta_client_credentials_flow_token_custom_expiry(token_cache, httpx_moc
         client.get("https://authorized_only", auth=auth)
 
 
-def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
+def test_expires_in_sent_as_str(token_cache, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaClientCredentials(
         "test_okta", client_id="test_user", client_secret="test_pwd", scope="dummy"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://test_okta/oauth2/default/v1/token",
         json={
@@ -149,7 +149,7 @@ def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
         },
         match_content=b"grant_type=client_credentials&scope=dummy",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -172,7 +172,7 @@ def test_expires_in_sent_as_str(token_cache, httpx_mock: HTTPXMock):
 )
 def test_handle_credentials_as_part_of_cache_key(
     token_cache,
-    httpx_mock: HTTPXMock,
+    httpx2_mock: HTTPXMock,
     client_id1,
     client_secret1,
     client_id2,
@@ -184,7 +184,7 @@ def test_handle_credentials_as_part_of_cache_key(
     auth2 = httpx2_auth.OktaClientCredentials(
         "test_okta", client_id=client_id2, client_secret=client_secret2, scope="dummy"
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://test_okta/oauth2/default/v1/token",
         json={
@@ -196,7 +196,7 @@ def test_handle_credentials_as_part_of_cache_key(
         },
         match_content=b"grant_type=client_credentials&scope=dummy",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -207,7 +207,7 @@ def test_handle_credentials_as_part_of_cache_key(
     with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth1)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://test_okta/oauth2/default/v1/token",
         json={
@@ -219,7 +219,7 @@ def test_handle_credentials_as_part_of_cache_key(
         },
         match_content=b"grant_type=client_credentials&scope=dummy",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -231,14 +231,14 @@ def test_handle_credentials_as_part_of_cache_key(
     with httpx2.Client() as client:
         client.get("https://authorized_only", auth=auth2)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
             "Authorization": "Bearer 2YotnFZFEjr1zCsicMWpAA",
         },
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

@@ -11,10 +11,10 @@ def token_mock() -> str:
 
 
 @pytest.mark.asyncio
-async def test_oauth2_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
+async def test_oauth2_implicit_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token")
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -27,12 +27,12 @@ async def test_oauth2_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
 
 
 @pytest.mark.asyncio
-async def test_okta_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
+async def test_okta_implicit_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaImplicit(
         "testserver.okta-emea.com", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -45,12 +45,12 @@ async def test_okta_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
 
 
 @pytest.mark.asyncio
-async def test_aad_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
+async def test_aad_implicit_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.AzureActiveDirectoryImplicit(
         "45239d18-c68c-4c47-8bdd-ce71ea1d50cd", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -63,12 +63,12 @@ async def test_aad_implicit_flow(token_cache_mock, httpx_mock: HTTPXMock):
 
 
 @pytest.mark.asyncio
-async def test_okta_implicit_id_token_flow(token_cache_mock, httpx_mock: HTTPXMock):
+async def test_okta_implicit_id_token_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaImplicitIdToken(
         "testserver.okta-emea.com", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -81,12 +81,12 @@ async def test_okta_implicit_id_token_flow(token_cache_mock, httpx_mock: HTTPXMo
 
 
 @pytest.mark.asyncio
-async def test_aad_implicit_id_token_flow(token_cache_mock, httpx_mock: HTTPXMock):
+async def test_aad_implicit_id_token_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.AzureActiveDirectoryImplicitIdToken(
         "45239d18-c68c-4c47-8bdd-ce71ea1d50cd", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

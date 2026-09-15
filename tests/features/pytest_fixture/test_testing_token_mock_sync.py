@@ -4,10 +4,10 @@ from pytest_httpx2 import HTTPXMock
 import httpx2_auth
 
 
-def test_token_mock(token_cache_mock, httpx_mock: HTTPXMock):
+def test_token_mock(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2Implicit("https://provide_token")
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

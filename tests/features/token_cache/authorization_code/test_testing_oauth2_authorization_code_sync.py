@@ -10,12 +10,12 @@ def token_mock() -> str:
     return "2YotnFZFEjr1zCsicMWpAA"
 
 
-def test_oauth2_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXMock):
+def test_oauth2_authorization_code_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2AuthorizationCode(
         "https://provide_code", "https://provide_access_token"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -27,12 +27,12 @@ def test_oauth2_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXMock)
         client.get("https://authorized_only", auth=auth)
 
 
-def test_okta_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXMock):
+def test_okta_authorization_code_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaAuthorizationCode(
         "testserver.okta-emea.com", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -44,12 +44,12 @@ def test_okta_authorization_code_flow(token_cache_mock, httpx_mock: HTTPXMock):
         client.get("https://authorized_only", auth=auth)
 
 
-def test_oauth2_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPXMock):
+def test_oauth2_authorization_code_pkce_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code", "https://provide_access_token"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -61,12 +61,12 @@ def test_oauth2_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPX
         client.get("https://authorized_only", auth=auth)
 
 
-def test_okta_authorization_code_pkce_flow(token_cache_mock, httpx_mock: HTTPXMock):
+def test_okta_authorization_code_pkce_flow(token_cache_mock, httpx2_mock: HTTPXMock):
     auth = httpx2_auth.OktaAuthorizationCodePKCE(
         "testserver.okta-emea.com", "54239d18-c68c-4c47-8bdd-ce71ea1d50cd"
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

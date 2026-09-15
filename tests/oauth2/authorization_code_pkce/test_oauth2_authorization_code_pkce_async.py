@@ -11,7 +11,7 @@ from httpx2_auth.testing import BrowserMock
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_provided_client(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
@@ -24,7 +24,7 @@ async def test_oauth2_pkce_flow_uses_provided_client(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -37,7 +37,7 @@ async def test_oauth2_pkce_flow_uses_provided_client(
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -53,7 +53,7 @@ async def test_oauth2_pkce_flow_uses_provided_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -65,7 +65,7 @@ async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -77,7 +77,7 @@ async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost.mycompany.com%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -93,7 +93,7 @@ async def test_oauth2_pkce_flow_uses_redirect_uri_domain(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_custom_success(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -106,7 +106,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
         displayed_html="<body><div>SUCCESS: {display_time}</div></body>",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -118,7 +118,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -134,7 +134,7 @@ async def test_oauth2_pkce_flow_uses_custom_success(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_uses_custom_failure(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -159,7 +159,7 @@ async def test_oauth2_pkce_flow_uses_custom_failure(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_is_able_to_reuse_client(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
@@ -172,7 +172,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -184,7 +184,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client(
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -201,7 +201,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -213,7 +213,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client(
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -229,7 +229,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     client = httpx2.Client(headers={"x-test": "Test value"})
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
@@ -242,7 +242,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -255,7 +255,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -269,7 +269,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
     tab.assert_success()
     time.sleep(2)
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -282,7 +282,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
         match_content=b"grant_type=refresh_token&response_type=code&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA",
         match_headers={"x-test": "Test value"},
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -296,7 +296,7 @@ async def test_oauth2_pkce_flow_is_able_to_reuse_client_with_token_refresh(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -307,7 +307,7 @@ async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_defa
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -319,7 +319,7 @@ async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_defa
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -335,7 +335,7 @@ async def test_oauth2_pkce_flow_get_code_is_sent_in_authorization_header_by_defa
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -353,7 +353,7 @@ async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -365,7 +365,7 @@ async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -381,7 +381,7 @@ async def test_oauth2_pkce_flow_get_code_is_expired_after_30_seconds_by_default(
 
 @pytest.mark.asyncio
 async def test_oauth2_pkce_flow_get_code_custom_expiry(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code", "https://provide_access_token", early_expiry=28
@@ -392,7 +392,7 @@ async def test_oauth2_pkce_flow_get_code_custom_expiry(
         token="2YotnFZFEjr1zCsicMWpAA",
         expiry=to_expiry(expires_in=29),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -406,7 +406,7 @@ async def test_oauth2_pkce_flow_get_code_custom_expiry(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -418,7 +418,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -430,7 +430,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -444,7 +444,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -456,7 +456,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
         },
         match_content=b"grant_type=refresh_token&response_type=code&refresh_token=tGzv3JOkF0XG5Qx2TlKWIA",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -470,7 +470,7 @@ async def test_oauth2_authorization_code_flow_refresh_token(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token_invalid(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -482,7 +482,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -494,7 +494,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -508,7 +508,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
     tab.assert_success()
 
     # response for refresh token grant
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request"},
@@ -522,7 +522,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -534,7 +534,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -550,7 +550,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_invalid(
 
 @pytest.mark.asyncio
 async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_expired(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -562,7 +562,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -574,7 +574,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -587,7 +587,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 
     tab.assert_success()
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -601,7 +601,7 @@ async def test_oauth2_authorization_code_flow_refresh_token_access_token_not_exp
 
 @pytest.mark.asyncio
 async def test_expires_in_sent_as_str(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -612,7 +612,7 @@ async def test_expires_in_sent_as_str(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -624,7 +624,7 @@ async def test_expires_in_sent_as_str(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -640,7 +640,7 @@ async def test_expires_in_sent_as_str(
 
 @pytest.mark.asyncio
 async def test_nonce_is_sent_if_provided_in_authorization_url(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -651,7 +651,7 @@ async def test_nonce_is_sent_if_provided_in_authorization_url(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -663,7 +663,7 @@ async def test_nonce_is_sent_if_provided_in_authorization_url(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
@@ -679,7 +679,7 @@ async def test_nonce_is_sent_if_provided_in_authorization_url(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_no_json(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -690,7 +690,7 @@ async def test_with_invalid_grant_request_no_json(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         text="failure",
@@ -706,7 +706,7 @@ async def test_with_invalid_grant_request_no_json(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -717,7 +717,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request"},
@@ -740,7 +740,7 @@ async def test_with_invalid_grant_request_invalid_request_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -751,7 +751,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_request", "error_description": "desc of the error"},
@@ -768,7 +768,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -779,7 +779,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -803,7 +803,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -814,7 +814,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -839,7 +839,7 @@ async def test_with_invalid_grant_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_without_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -850,7 +850,7 @@ async def test_with_invalid_grant_request_without_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"other": "other info"},
@@ -867,7 +867,7 @@ async def test_with_invalid_grant_request_without_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -878,7 +878,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_client"},
@@ -905,7 +905,7 @@ async def test_with_invalid_grant_request_invalid_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_grant_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -916,7 +916,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_grant"},
@@ -939,7 +939,7 @@ async def test_with_invalid_grant_request_invalid_grant_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -950,7 +950,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "unauthorized_client"},
@@ -971,7 +971,7 @@ async def test_with_invalid_grant_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_unsupported_grant_type_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -982,7 +982,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "unsupported_grant_type"},
@@ -1003,7 +1003,7 @@ async def test_with_invalid_grant_request_unsupported_grant_type_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_grant_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?nonce=123456",
@@ -1014,7 +1014,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
         opened_url=f"https://provide_code?response_type=code&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&nonce=%5B%27123456%27%5D&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=ce9c755b41b5e3c5b64c70598715d5de271023a53f39a67a70215d265d11d2bfb6ef6e9c701701e998e69cbdbf2cee29fd51d2a950aa05f59a20cf4a646099d5",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={"error": "invalid_scope"},
@@ -1035,7 +1035,7 @@ async def test_with_invalid_grant_request_invalid_scope_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1062,7 +1062,7 @@ async def test_with_invalid_token_request_invalid_request_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error_and_error_description(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1084,7 +1084,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1109,7 +1109,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_request_error_and_error_description_and_uri_and_other_fields(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1136,7 +1136,7 @@ async def test_with_invalid_token_request_invalid_request_error_and_error_descri
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_unauthorized_client_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1163,7 +1163,7 @@ async def test_with_invalid_token_request_unauthorized_client_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_access_denied_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1190,7 +1190,7 @@ async def test_with_invalid_token_request_access_denied_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_unsupported_response_type_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1217,7 +1217,7 @@ async def test_with_invalid_token_request_unsupported_response_type_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_invalid_scope_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1242,7 +1242,7 @@ async def test_with_invalid_token_request_invalid_scope_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_server_error_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1269,7 +1269,7 @@ async def test_with_invalid_token_request_server_error_error(
 
 @pytest.mark.asyncio
 async def test_with_invalid_token_request_temporarily_unavailable_error(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code",
@@ -1296,7 +1296,7 @@ async def test_with_invalid_token_request_temporarily_unavailable_error(
 
 @pytest.mark.asyncio
 async def test_response_type_can_be_provided_in_url(
-    token_cache, httpx_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
+    token_cache, httpx2_mock: HTTPXMock, browser_mock: BrowserMock, unused_tcp_port: int
 ):
     auth = httpx2_auth.OAuth2AuthorizationCodePKCE(
         "https://provide_code?response_type=my_code",
@@ -1308,7 +1308,7 @@ async def test_response_type_can_be_provided_in_url(
         opened_url=f"https://provide_code?response_type=%5B%27my_code%27%5D&state=863572fb4a5d1cc06834070baaaa08020928779095e2b61a60513e55a7ad17e9683441b436080a1c654a58b8f5c35837ee96e610919075ea01c82e27b6a86219&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&code_challenge=5C_ph_KZ3DstYUc965SiqmKAA-ShvKF4Ut7daKd3fjc&code_challenge_method=S256",
         reply_url=f"http://localhost:{unused_tcp_port}#code=SplxlOBeZQQYbYS6WxSbIA&state=863572fb4a5d1cc06834070baaaa08020928779095e2b61a60513e55a7ad17e9683441b436080a1c654a58b8f5c35837ee96e610919075ea01c82e27b6a86219",
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         method="POST",
         url="https://provide_access_token",
         json={
@@ -1320,7 +1320,7 @@ async def test_response_type_can_be_provided_in_url(
         },
         match_content=f"code_verifier=MTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTExMTEx&grant_type=authorization_code&redirect_uri=http%3A%2F%2Flocalhost%3A{unused_tcp_port}%2F&response_type=my_code&code=SplxlOBeZQQYbYS6WxSbIA".encode(),
     )
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={

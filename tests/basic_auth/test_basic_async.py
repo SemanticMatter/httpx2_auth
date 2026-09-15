@@ -6,10 +6,10 @@ import httpx2_auth
 
 
 @pytest.mark.asyncio
-async def test_basic_authentication_send_authorization_header(httpx_mock: HTTPXMock):
+async def test_basic_authentication_send_authorization_header(httpx2_mock: HTTPXMock):
     auth = httpx2_auth.Basic("test_user", "test_pwd")
 
-    httpx_mock.add_response(
+    httpx2_mock.add_response(
         url="https://authorized_only",
         method="GET",
         match_headers={
